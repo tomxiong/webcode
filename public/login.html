@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CLSI平台 - 用户登录</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .logo h1 {
+            color: #2c3e50;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+        
+        .logo p {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+        
+        .role-selector {
+            margin-bottom: 20px;
+        }
+        
+        .role-selector select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .demo-accounts {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        
+        .demo-accounts h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        
+        .account-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid #e1e8ed;
+        }
+        
+        .account-item:last-child {
+            border-bottom: none;
+        }
+        
+        .account-info {
+            flex: 1;
+        }
+        
+        .account-role {
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .account-credentials {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+        
+        .quick-login {
+            background: #e8f4fd;
+            color: #3498db;
+            border: 1px solid #3498db;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .quick-login:hover {
+            background: #3498db;
+            color: white;
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .success-message {
+            background: #efe;
+            color: #3c3;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="logo">
+            <h1>🧬 CLSI平台</h1>
+            <p>微生物实验室信息管理系统</p>
+        </div>
+        
+        <form id="loginForm">
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+            
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            
+            <div class="role-selector">
+                <label for="expectedRole">期望角色</label>
+                <select id="expectedRole" name="expectedRole">
+                    <option value="">自动检测</option>
+                    <option value="admin">管理员</option>
+                    <option value="microbiologist">微生物学家</option>
+                    <option value="technician">实验室技师</option>
+                    <option value="viewer">查看者</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="login-btn" id="loginBtn">
+                登录系统
+            </button>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                正在验证登录信息...
+            </div>
+        </form>
+        
+        <div class="demo-accounts">
+            <h3>🎯 演示账户</h3>
+            
+            <div class="account-item">
+                <div class="account-info">
+                    <div class="account-role">管理员</div>
+                    <div class="account-credentials">admin / admin123</div>
+                </div>
+                <button class="quick-login" onclick="quickLogin('admin', 'admin123')">快速登录</button>
+            </div>
+            
+            <div class="account-item">
+                <div class="account-info">
+                    <div class="account-role">微生物学家</div>
+                    <div class="account-credentials">microbiologist / micro123</div>
+                </div>
+                <button class="quick-login" onclick="quickLogin('microbiologist', 'micro123')">快速登录</button>
+            </div>
+            
+            <div class="account-item">
+                <div class="account-info">
+                    <div class="account-role">实验室技师</div>
+                    <div class="account-credentials">technician / tech123</div>
+                </div>
+                <button class="quick-login" onclick="quickLogin('technician', 'tech123')">快速登录</button>
+            </div>
+            
+            <div class="account-item">
+                <div class="account-info">
+                    <div class="account-role">查看者</div>
+                    <div class="account-credentials">viewer / view123</div>
+                </div>
+                <button class="quick-login" onclick="quickLogin('viewer', 'view123')">快速登录</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 登录表单处理
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const expectedRole = document.getElementById('expectedRole').value;
+            
+            await performLogin(username, password, expectedRole);
+        });
+        
+        // 快速登录功能
+        function quickLogin(username, password) {
+            document.getElementById('username').value = username;
+            document.getElementById('password').value = password;
+            performLogin(username, password);
+        }
+        
+        // 执行登录
+        async function performLogin(username, password, expectedRole = '') {
+            const loginBtn = document.getElementById('loginBtn');
+            const loading = document.getElementById('loading');
+            const errorMessage = document.getElementById('errorMessage');
+            const successMessage = document.getElementById('successMessage');
+            
+            // 显示加载状态
+            loginBtn.disabled = true;
+            loading.style.display = 'block';
+            errorMessage.style.display = 'none';
+            successMessage.style.display = 'none';
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    // 登录成功
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('userInfo', JSON.stringify(data.user));
+                    
+                    successMessage.textContent = `登录成功！欢迎 ${data.user.username} (${data.user.role})`;
+                    successMessage.style.display = 'block';
+                    
+                    // 2秒后跳转到管理后台
+                    setTimeout(() => {
+                        window.location.href = '/dashboard.html';
+                    }, 2000);
+                    
+                } else {
+                    // 登录失败
+                    errorMessage.textContent = data.message || '登录失败，请检查用户名和密码';
+                    errorMessage.style.display = 'block';
+                }
+                
+            } catch (error) {
+                console.error('登录错误:', error);
+                errorMessage.textContent = '网络错误，请稍后重试';
+                errorMessage.style.display = 'block';
+            } finally {
+                // 恢复按钮状态
+                loginBtn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+        
+        // 检查是否已经登录
+        window.addEventListener('load', function() {
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                // 验证token是否有效
+                fetch('/api/auth/profile', {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        // token有效，直接跳转到管理后台
+                        window.location.href = '/dashboard.html';
+                    }
+                })
+                .catch(error => {
+                    // token无效，清除本地存储
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('userInfo');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

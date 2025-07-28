@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>折点标准管理 - CLSI平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 8px 16px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .nav-btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.logout {
+            background: #e74c3c;
+        }
+
+        .nav-btn.logout:hover {
+            background: #c0392b;
+        }
+
+        .main-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+
+        .control-group select,
+        .control-group input {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .control-group select:focus,
+        .control-group input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            align-self: flex-end;
+        }
+
+        .btn:hover {
+            background: #219a52;
+            transform: translateY(-2px);
+        }
+
+        .btn.secondary {
+            background: #95a5a6;
+        }
+
+        .btn.secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .stat-card h3 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .stat-card p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+            position: sticky;
+            top: 0;
+        }
+
+        tr:hover {
+            background: #f8f9fa;
+        }
+
+        .breakpoint-values {
+            display: flex;
+            gap: 10px;
+            font-size: 12px;
+        }
+
+        .breakpoint-value {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .susceptible {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .intermediate {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .resistant {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .method-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #e9ecef;
+            color: #495057;
+        }
+
+        .year-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            background: #007bff;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border: 1px solid #f5c6cb;
+        }
+
+        .success {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+            border: 1px solid #c3e6cb;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background: white;
+            margin: 5% auto;
+            padding: 25px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+
+        .close {
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaa;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .breakpoint-inputs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .breakpoint-input {
+            text-align: center;
+        }
+
+        .breakpoint-input label {
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .breakpoint-input input {
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .breakpoint-inputs {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 折点标准管理</h1>
+            <p>CLSI折点标准配置与管理系统</p>
+            <div class="nav-buttons">
+                <a href="dashboard.html" class="nav-btn">🏠 仪表板</a>
+                <a href="microorganisms.html" class="nav-btn">🦠 微生物</a>
+                <a href="drugs.html" class="nav-btn">💊 药物</a>
+                <a href="expert-rules.html" class="nav-btn">🧠 专家规则</a>
+                <a href="samples.html" class="nav-btn">🧪 样本</a>
+                <a href="reports.html" class="nav-btn">📊 报告</a>
+                <button onclick="logout()" class="nav-btn logout">🚪 退出</button>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="controls">
+                <div class="control-group">
+                    <label for="yearFilter">年份</label>
+                    <select id="yearFilter">
+                        <option value="">所有年份</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="methodFilter">检测方法</label>
+                    <select id="methodFilter">
+                        <option value="">所有方法</option>
+                        <option value="DISK_DIFFUSION">纸片扩散法</option>
+                        <option value="MIC">最小抑菌浓度</option>
+                        <option value="E_TEST">E-test</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="searchInput">搜索</label>
+                    <input type="text" id="searchInput" placeholder="搜索微生物或药物...">
+                </div>
+                <button onclick="loadBreakpointStandards()" class="btn">🔍 搜索</button>
+                <button onclick="showAddModal()" class="btn">➕ 添加标准</button>
+                <button onclick="loadStatistics()" class="btn secondary">📈 统计</button>
+            </div>
+
+            <div id="statisticsSection" class="stats-grid" style="display: none;">
+                <!-- 统计卡片将在这里动态生成 -->
+            </div>
+
+            <div id="loadingIndicator" class="loading">
+                <p>⏳ 加载中...</p>
+            </div>
+
+            <div id="errorMessage" class="error" style="display: none;"></div>
+            <div id="successMessage" class="success" style="display: none;"></div>
+
+            <div class="table-container">
+                <table id="breakpointTable">
+                    <thead>
+                        <tr>
+                            <th>年份</th>
+                            <th>微生物</th>
+                            <th>药物</th>
+                            <th>检测方法</th>
+                            <th>折点值</th>
+                            <th>备注</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="breakpointTableBody">
+                        <!-- 数据将在这里动态生成 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑折点标准模态框 -->
+    <div id="breakpointModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">添加折点标准</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <form id="breakpointForm">
+                <div class="form-group">
+                    <label for="microorganismSelect">微生物 *</label>
+                    <select id="microorganismSelect" required>
+                        <option value="">请选择微生物</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="drugSelect">药物 *</label>
+                    <select id="drugSelect" required>
+                        <option value="">请选择药物</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="yearInput">年份 *</label>
+                    <input type="number" id="yearInput" min="2020" max="2030" required>
+                </div>
+                <div class="form-group">
+                    <label for="methodSelect">检测方法 *</label>
+                    <select id="methodSelect" required>
+                        <option value="">请选择检测方法</option>
+                        <option value="DISK_DIFFUSION">纸片扩散法</option>
+                        <option value="MIC">最小抑菌浓度</option>
+                        <option value="E_TEST">E-test</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>折点值 *</label>
+                    <div class="breakpoint-inputs">
+                        <div class="breakpoint-input">
+                            <label>敏感 (S)</label>
+                            <input type="number" id="susceptibleInput" step="0.01" required>
+                        </div>
+                        <div class="breakpoint-input">
+                            <label>中介 (I)</label>
+                            <input type="number" id="intermediateInput" step="0.01">
+                        </div>
+                        <div class="breakpoint-input">
+                            <label>耐药 (R)</label>
+                            <input type="number" id="resistantInput" step="0.01" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="notesInput">备注</label>
+                    <textarea id="notesInput" placeholder="输入备注信息..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="sourceInput">来源文档</label>
+                    <input type="text" id="sourceInput" placeholder="CLSI M100-S31等">
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+                    <button type="button" onclick="closeModal()" class="btn secondary">取消</button>
+                    <button type="submit" class="btn">保存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let authToken = localStorage.getItem('authToken');
+        let currentBreakpoints = [];
+        let microorganisms = [];
+        let drugs = [];
+
+        // 检查认证状态
+        if (!authToken) {
+            window.location.href = 'login.html';
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadInitialData();
+        });
+
+        async function loadInitialData() {
+            try {
+                await Promise.all([
+                    loadAvailableYears(),
+                    loadMicroorganisms(),
+                    loadDrugs(),
+                    loadBreakpointStandards()
+                ]);
+            } catch (error) {
+                showError('初始化数据加载失败: ' + error.message);
+            }
+        }
+
+        async function loadAvailableYears() {
+            try {
+                const response = await fetch('/api/breakpoint-standards/years', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (response.status === 401) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                const data = await response.json();
+                const yearSelect = document.getElementById('yearFilter');
+                
+                if (data.success && data.data) {
+                    data.data.forEach(year => {
+                        const option = document.createElement('option');
+                        option.value = year;
+                        option.textContent = year;
+                        yearSelect.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('加载年份失败:', error);
+            }
+        }
+
+        async function loadMicroorganisms() {
+            try {
+                const response = await fetch('/api/microorganisms', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                const data = await response.json();
+                microorganisms = data.data || data || [];
+                
+                const select = document.getElementById('microorganismSelect');
+                microorganisms.forEach(micro => {
+                    const option = document.createElement('option');
+                    option.value = micro.id;
+                    option.textContent = `${micro.genus} ${micro.species || ''}`.trim();
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('加载微生物失败:', error);
+            }
+        }
+
+        async function loadDrugs() {
+            try {
+                const response = await fetch('/api/drugs', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                const data = await response.json();
+                drugs = data.data || data || [];
+                
+                const select = document.getElementById('drugSelect');
+                drugs.forEach(drug => {
+                    const option = document.createElement('option');
+                    option.value = drug.id;
+                    option.textContent = drug.name;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('加载药物失败:', error);
+            }
+        }
+
+        async function loadBreakpointStandards() {
+            showLoading(true);
+            try {
+                const yearFilter = document.getElementById('yearFilter').value;
+                const methodFilter = document.getElementById('methodFilter').value;
+                
+                let url = '/api/breakpoint-standards';
+                if (yearFilter) {
+                    url = `/api/breakpoint-standards/year/${yearFilter}`;
+                }
+                
+                const response = await fetch(url, {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                if (response.status === 401) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                
+                const data = await response.json();
+                currentBreakpoints = data.data || [];
+                
+                // 应用方法过滤
+                if (methodFilter) {
+                    currentBreakpoints = currentBreakpoints.filter(bp => bp.method === methodFilter);
+                }
+                
+                displayBreakpoints(currentBreakpoints);
+            } catch (error) {
+                showError('加载折点标准失败: ' + error.message);
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function loadStatistics() {
+            try {
+                const response = await fetch('/api/breakpoint-standards/statistics', {
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    displayStatistics(data.data);
+                }
+            } catch (error) {
+                showError('加载统计信息失败: ' + error.message);
+            }
+        }
+
+        function displayStatistics(stats) {
+            const section = document.getElementById('statisticsSection');
+            section.innerHTML = `
+                <div class="stat-card">
+                    <h3>${stats.totalStandards || 0}</h3>
+                    <p>总标准数</p>
+                </div>
+                <div class="stat-card">
+                    <h3>${stats.availableYears || 0}</h3>
+                    <p>可用年份</p>
+                </div>
+                <div class="stat-card">
+                    <h3>${stats.yearRange ? `${stats.yearRange.earliest}-${stats.yearRange.latest}` : 'N/A'}</h3>
+                    <p>年份范围</p>
+                </div>
+                <div class="stat-card">
+                    <h3>${Object.keys(stats.methodDistribution || {}).length}</h3>
+                    <p>检测方法</p>
+                </div>
+            `;
+            section.style.display = 'grid';
+        }
+
+        function displayBreakpoints(breakpoints) {
+            const tbody = document.getElementById('breakpointTableBody');
+            tbody.innerHTML = '';
+            
+            if (breakpoints.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: #666;">暂无折点标准数据</td></tr>';
+                return;
+            }
+            
+            breakpoints.forEach(bp => {
+                const row = document.createElement('tr');
+                
+                // 获取微生物和药物名称
+                const microorganism = microorganisms.find(m => m.id === bp.microorganismId);
+                const drug = drugs.find(d => d.id === bp.drugId);
+                
+                const microName = microorganism ? `${microorganism.genus} ${microorganism.species || ''}`.trim() : bp.microorganismId;
+                const drugName = drug ? drug.name : bp.drugId;
+                
+                row.innerHTML = `
+                    <td><span class="year-badge">${bp.year}</span></td>
+                    <td>${microName}</td>
+                    <td>${drugName}</td>
+                    <td><span class="method-badge">${getMethodDisplayName(bp.method)}</span></td>
+                    <td>
+                        <div class="breakpoint-values">
+                            <span class="breakpoint-value susceptible">S: ≤${bp.breakpoints.susceptible}</span>
+                            ${bp.breakpoints.intermediate ? `<span class="breakpoint-value intermediate">I: ${bp.breakpoints.intermediate}</span>` : ''}
+                            <span class="breakpoint-value resistant">R: ≥${bp.breakpoints.resistant}</span>
+                        </div>
+                    </td>
+                    <td>${bp.notes || '-'}</td>
+                    <td>
+                        <button onclick="editBreakpoint('${bp.id}')" class="btn" style="padding: 5px 10px; font-size: 12px;">编辑</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function getMethodDisplayName(method) {
+            const methodNames = {
+                'DISK_DIFFUSION': '纸片扩散',
+                'MIC': 'MIC',
+                'E_TEST': 'E-test'
+            };
+            return methodNames[method] || method;
+        }
+
+        function showAddModal() {
+            document.getElementById('modalTitle').textContent = '添加折点标准';
+            document.getElementById('breakpointForm').reset();
+            document.getElementById('yearInput').value = new Date().getFullYear();
+            document.getElementById('breakpointModal').style.display = 'block';
+        }
+
+        function editBreakpoint(id) {
+            const breakpoint = currentBreakpoints.find(bp => bp.id === id);
+            if (!breakpoint) return;
+            
+            document.getElementById('modalTitle').textContent = '编辑折点标准';
+            document.getElementById('microorganismSelect').value = breakpoint.microorganismId;
+            document.getElementById('drugSelect').value = breakpoint.drugId;
+            document.getElementById('yearInput').value = breakpoint.year;
+            document.getElementById('methodSelect').value = breakpoint.method;
+            document.getElementById('susceptibleInput').value = breakpoint.breakpoints.susceptible;
+            document.getElementById('intermediateInput').value = breakpoint.breakpoints.intermediate || '';
+            document.getElementById('resistantInput').value = breakpoint.breakpoints.resistant;
+            document.getElementById('notesInput').value = breakpoint.notes || '';
+            document.getElementById('sourceInput').value = breakpoint.sourceDocument || '';
+            
+            document.getElementById('breakpointModal').style.display = 'block';
+        }
+
+        function closeModal() {
+            document.getElementById('breakpointModal').style.display = 'none';
+        }
+
+        // 表单提交处理
+        document.getElementById('breakpointForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                microorganismId: document.getElementById('microorganismSelect').value,
+                drugId: document.getElementById('drugSelect').value,
+                year: parseInt(document.getElementById('yearInput').value),
+                method: document.getElementById('methodSelect').value,
+                breakpoints: {
+                    susceptible: parseFloat(document.getElementById('susceptibleInput').value),
+                    intermediate: document.getElementById('intermediateInput').value ? 
+                        parseFloat(document.getElementById('intermediateInput').value) : null,
+                    resistant: parseFloat(document.getElementById('resistantInput').value)
+                },
+                notes: document.getElementById('notesInput').value,
+                sourceDocument: document.getElementById('sourceInput').value
+            };
+            
+            try {
+                const response = await fetch('/api/breakpoint-standards', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showSuccess('折点标准保存成功');
+                    closeModal();
+                    loadBreakpointStandards();
+                } else {
+                    showError(data.error || '保存失败');
+                }
+            } catch (error) {
+                showError('保存失败: ' + error.message);
+            }
+        });
+
+        // 搜索功能
+        document.getElementById('searchInput').addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            const filtered = currentBreakpoints.filter(bp => {
+                const microorganism = microorganisms.find(m => m.id === bp.microorganismId);
+                const drug = drugs.find(d => d.id === bp.drugId);
+                const microName = microorganism ? `${microorganism.genus} ${microorganism.species || ''}`.toLowerCase() : '';
+                const drugName = drug ? drug.name.toLowerCase() : '';
+                
+                return microName.includes(searchTerm) || drugName.includes(searchTerm);
+            });
+            displayBreakpoints(filtered);
+        });
+
+        function showLoading(show) {
+            document.getElementById('loadingIndicator').style.display = show ? 'block' : 'none';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => errorDiv.style.display = 'none', 5000);
+        }
+
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            setTimeout(() => successDiv.style.display = 'none', 3000);
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/auth/logout', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${authToken}` }
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+            
+            localStorage.removeItem('authToken');
+            window.location.href = 'login.html';
+        }
+
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('breakpointModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>

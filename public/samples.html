@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>样本管理 - CLSI平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #2c3e50;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .nav-links a.active {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .page-title {
+            font-size: 28px;
+            color: #2c3e50;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #229954;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        .filters {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .filter-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+        
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .filter-group label {
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        .filter-group input,
+        .filter-group select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .samples-table {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .table-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-pending {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .status-processing {
+            background: #3498db;
+            color: white;
+        }
+        
+        .status-completed {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .status-failed {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .sample-type {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+        }
+        
+        .type-blood {
+            background: #e74c3c;
+        }
+        
+        .type-urine {
+            background: #f39c12;
+        }
+        
+        .type-sputum {
+            background: #27ae60;
+        }
+        
+        .type-wound {
+            background: #9b59b6;
+        }
+        
+        .type-other {
+            background: #95a5a6;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .success-message {
+            background: #efe;
+            color: #3c3;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .filter-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            table {
+                font-size: 14px;
+            }
+            
+            th, td {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧬 CLSI平台 - 样本管理</h1>
+        <div class="nav-links">
+            <a href="/dashboard.html">仪表板</a>
+            <a href="/users.html">用户管理</a>
+            <a href="/microorganisms.html">微生物管理</a>
+            <a href="/drugs.html">药物管理</a>
+            <a href="/samples.html" class="active">样本管理</a>
+            <a href="/expert-rules.html">专家规则</a>
+            <a href="/reports.html">报告分析</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="page-header">
+            <h2 class="page-title">🧪 样本管理</h2>
+            <button class="btn btn-primary" onclick="addNewSample()">
+                ➕ 新增样本
+            </button>
+        </div>
+        
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+        
+        <!-- 统计信息 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalSamples">0</div>
+                <div class="stat-label">总样本数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingSamples">0</div>
+                <div class="stat-label">待处理</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="processingSamples">0</div>
+                <div class="stat-label">处理中</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="completedSamples">0</div>
+                <div class="stat-label">已完成</div>
+            </div>
+        </div>
+        
+        <!-- 过滤器 -->
+        <div class="filters">
+            <div class="filter-row">
+                <div class="filter-group">
+                    <label>搜索样本</label>
+                    <input type="text" id="searchInput" placeholder="输入样本ID或患者信息..." onkeyup="filterSamples()">
+                </div>
+                <div class="filter-group">
+                    <label>样本类型</label>
+                    <select id="typeFilter" onchange="filterSamples()">
+                        <option value="">全部类型</option>
+                        <option value="blood">血液</option>
+                        <option value="urine">尿液</option>
+                        <option value="sputum">痰液</option>
+                        <option value="wound">伤口分泌物</option>
+                        <option value="other">其他</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>处理状态</label>
+                    <select id="statusFilter" onchange="filterSamples()">
+                        <option value="">全部状态</option>
+                        <option value="pending">待处理</option>
+                        <option value="processing">处理中</option>
+                        <option value="completed">已完成</option>
+                        <option value="failed">失败</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <button class="btn btn-secondary" onclick="clearFilters()">清除过滤</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 样本表格 -->
+        <div class="samples-table">
+            <div class="table-header">
+                <div class="table-title">样本列表</div>
+                <div>
+                    <span id="displayCount">0</span> 条记录
+                </div>
+            </div>
+            
+            <div id="loadingIndicator" class="loading">
+                正在加载样本数据...
+            </div>
+            
+            <table id="samplesTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>样本ID</th>
+                        <th>患者信息</th>
+                        <th>样本类型</th>
+                        <th>采集时间</th>
+                        <th>状态</th>
+                        <th>检测项目</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="samplesTableBody">
+                    <!-- 动态内容 -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        let authToken = localStorage.getItem('authToken');
+        let allSamples = [];
+        let filteredSamples = [];
+        
+        // 页面加载时初始化
+        window.addEventListener('load', function() {
+            checkAuth();
+            loadSamples();
+        });
+        
+        // 检查认证状态
+        function checkAuth() {
+            if (!authToken) {
+                window.location.href = '/login.html';
+                return;
+            }
+        }
+        
+        // 加载样本列表
+        async function loadSamples() {
+            try {
+                // 模拟样本数据，因为后端可能还没有完整的样本API
+                const mockSamples = [
+                    {
+                        id: 'S2024001',
+                        patient_name: '张三',
+                        patient_id: 'P001',
+                        sample_type: 'blood',
+                        collection_date: '2024-01-15T08:30:00Z',
+                        status: 'completed',
+                        test_items: ['细菌培养', '药敏试验']
+                    },
+                    {
+                        id: 'S2024002',
+                        patient_name: '李四',
+                        patient_id: 'P002',
+                        sample_type: 'urine',
+                        collection_date: '2024-01-15T09:15:00Z',
+                        status: 'processing',
+                        test_items: ['细菌培养']
+                    },
+                    {
+                        id: 'S2024003',
+                        patient_name: '王五',
+                        patient_id: 'P003',
+                        sample_type: 'sputum',
+                        collection_date: '2024-01-15T10:00:00Z',
+                        status: 'pending',
+                        test_items: ['细菌培养', '药敏试验', '结核菌检测']
+                    }
+                ];
+                
+                allSamples = mockSamples;
+                filteredSamples = [...allSamples];
+                
+                updateStatistics();
+                displaySamples();
+                
+            } catch (error) {
+                console.error('Error loading samples:', error);
+                showError('加载样本列表失败: ' + error.message);
+            } finally {
+                document.getElementById('loadingIndicator').style.display = 'none';
+                document.getElementById('samplesTable').style.display = 'table';
+            }
+        }
+        
+        // 更新统计信息
+        function updateStatistics() {
+            const stats = {
+                total: allSamples.length,
+                pending: allSamples.filter(s => s.status === 'pending').length,
+                processing: allSamples.filter(s => s.status === 'processing').length,
+                completed: allSamples.filter(s => s.status === 'completed').length
+            };
+            
+            document.getElementById('totalSamples').textContent = stats.total;
+            document.getElementById('pendingSamples').textContent = stats.pending;
+            document.getElementById('processingSamples').textContent = stats.processing;
+            document.getElementById('completedSamples').textContent = stats.completed;
+        }
+        
+        // 显示样本列表
+        function displaySamples() {
+            const tbody = document.getElementById('samplesTableBody');
+            
+            document.getElementById('displayCount').textContent = filteredSamples.length;
+            
+            if (filteredSamples.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #7f8c8d;">暂无样本数据</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = filteredSamples.map(sample => `
+                <tr>
+                    <td>${sample.id}</td>
+                    <td>${sample.patient_name} (${sample.patient_id})</td>
+                    <td><span class="sample-type type-${sample.sample_type}">${getTypeDisplayName(sample.sample_type)}</span></td>
+                    <td>${formatDateTime(sample.collection_date)}</td>
+                    <td><span class="status-badge status-${sample.status}">${getStatusDisplayName(sample.status)}</span></td>
+                    <td>${sample.test_items.join(', ')}</td>
+                    <td>
+                        <div class="actions">
+                            <button class="btn btn-sm btn-secondary" onclick="viewSample('${sample.id}')">查看</button>
+                            <button class="btn btn-sm btn-warning" onclick="editSample('${sample.id}')">编辑</button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+        
+        // 获取类型显示名称
+        function getTypeDisplayName(type) {
+            const typeNames = {
+                'blood': '血液',
+                'urine': '尿液',
+                'sputum': '痰液',
+                'wound': '伤口分泌物',
+                'other': '其他'
+            };
+            return typeNames[type] || type;
+        }
+        
+        // 获取状态显示名称
+        function getStatusDisplayName(status) {
+            const statusNames = {
+                'pending': '待处理',
+                'processing': '处理中',
+                'completed': '已完成',
+                'failed': '失败'
+            };
+            return statusNames[status] || status;
+        }
+        
+        // 格式化日期时间
+        function formatDateTime(dateString) {
+            return new Date(dateString).toLocaleString('zh-CN');
+        }
+        
+        // 过滤样本
+        function filterSamples() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const typeFilter = document.getElementById('typeFilter').value;
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            filteredSamples = allSamples.filter(sample => {
+                const matchesSearch = sample.id.toLowerCase().includes(searchTerm) ||
+                                    sample.patient_name.toLowerCase().includes(searchTerm) ||
+                                    sample.patient_id.toLowerCase().includes(searchTerm);
+                const matchesType = !typeFilter || sample.sample_type === typeFilter;
+                const matchesStatus = !statusFilter || sample.status === statusFilter;
+                
+                return matchesSearch && matchesType && matchesStatus;
+            });
+            
+            displaySamples();
+        }
+        
+        // 清除过滤器
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('typeFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            filteredSamples = [...allSamples];
+            displaySamples();
+        }
+        
+        // 新增样本
+        function addNewSample() {
+            alert('新增样本功能正在开发中...');
+        }
+        
+        // 查看样本
+        function viewSample(sampleId) {
+            alert(`查看样本 ${sampleId} 的详细信息`);
+        }
+        
+        // 编辑样本
+        function editSample(sampleId) {
+            alert(`编辑样本 ${sampleId}`);
+        }
+        
+        // 显示错误消息
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        // 显示成功消息
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
