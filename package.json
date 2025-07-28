@@ -1,0 +1,56 @@
+{
+  "name": "clsi-management-platform",
+  "version": "1.0.0",
+  "description": "CLSI Standards and Expert Rules Management Platform",
+  "main": "dist/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "test": "tsx src/test-setup.ts",
+    "test-auth": "tsx src/test-auth.ts",
+    "test-auth-endpoints": "tsx src/test-auth-endpoints.ts",
+    "test-microorganism-endpoints": "tsx src/test-microorganism-endpoints.ts",
+    "test-drug-endpoints": "tsx src/test-drug-endpoints.ts",
+    "test-breakpoint-endpoints": "tsx src/test-breakpoint-endpoints.ts",
+    "test-expert-rule-endpoints": "tsx src/test-expert-rule-endpoints.ts",
+    "test-sample-lab-endpoints": "tsx src/test-sample-lab-endpoints.ts",
+    "demo": "tsx src/demo-platform.ts",
+    "test:unit": "vitest run src/tests/unit",
+    "test:integration": "vitest run src/tests/integration",
+    "test:e2e": "vitest run src/tests/e2e",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest",
+    "test:ui": "vitest --ui"
+  },
+  "keywords": [
+    "clsi",
+    "laboratory",
+    "microbiology",
+    "expert-rules",
+    "breakpoints"
+  ],
+  "author": "CLSI Platform Team",
+  "license": "MIT",
+  "dependencies": {
+    "@hono/node-server": "^1.12.2",
+    "@types/uuid": "^10.0.0",
+    "hono": "^4.6.3",
+    "jsonwebtoken": "^9.0.2",
+    "node-fetch": "^3.3.2",
+    "sqlite3": "^5.1.7",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.2",
+    "uuid": "^11.1.0"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.7",
+    "@types/node": "^22.7.4",
+    "@types/node-fetch": "^2.6.11",
+    "@types/sqlite3": "^3.1.11",
+    "@vitest/ui": "^3.2.4",
+    "c8": "^10.1.3",
+    "vitest": "^3.2.4"
+  }
+}

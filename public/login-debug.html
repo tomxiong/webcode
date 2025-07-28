@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>登录调试页面</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; }
+        .container { background: #f9f9f9; padding: 20px; border-radius: 8px; }
+        button { background: #3498db; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin: 5px; }
+        button:hover { background: #2980b9; }
+        .log { background: white; padding: 15px; border-radius: 4px; margin-top: 20px; font-family: monospace; font-size: 12px; max-height: 400px; overflow-y: auto; }
+        .success { color: #27ae60; }
+        .error { color: #e74c3c; }
+        .info { color: #3498db; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 登录流程调试</h1>
+        <p>这个页面用于调试登录问题</p>
+        
+        <button onclick="testLogin()">测试管理员登录</button>
+        <button onclick="testProfile()">测试Profile端点</button>
+        <button onclick="clearStorage()">清除存储</button>
+        <button onclick="goToDashboard()">跳转到仪表板</button>
+        
+        <div id="log" class="log"></div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const timestamp = new Date().toLocaleTimeString();
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'info';
+            logDiv.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+            console.log(`[${timestamp}] ${message}`);
+        }
+
+        async function testLogin() {
+            log('开始测试登录...', 'info');
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'admin', password: 'admin123' })
+                });
+                
+                const data = await response.json();
+                log(`登录响应: ${JSON.stringify(data)}`, response.ok ? 'success' : 'error');
+                
+                if (response.ok && data.success) {
+                    localStorage.setItem('authToken', data.token);
+                    localStorage.setItem('userInfo', JSON.stringify(data.user));
+                    log('令牌已保存到localStorage', 'success');
+                    
+                    // 立即测试profile端点
+                    await testProfile();
+                }
+                
+            } catch (error) {
+                log(`登录错误: ${error.message}`, 'error');
+            }
+        }
+
+        async function testProfile() {
+            const token = localStorage.getItem('authToken');
+            if (!token) {
+                log('没有找到令牌，请先登录', 'error');
+                return;
+            }
+            
+            log('测试Profile端点...', 'info');
+            
+            try {
+                const response = await fetch('/api/auth/profile', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                
+                const data = await response.json();
+                log(`Profile响应: ${JSON.stringify(data)}`, response.ok ? 'success' : 'error');
+                
+            } catch (error) {
+                log(`Profile错误: ${error.message}`, 'error');
+            }
+        }
+
+        function clearStorage() {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userInfo');
+            log('已清除本地存储', 'info');
+        }
+
+        function goToDashboard() {
+            log('跳转到仪表板...', 'info');
+            window.location.href = '/dashboard.html';
+        }
+
+        // 页面加载时检查状态
+        window.onload = function() {
+            log('页面加载完成', 'info');
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                log('发现已存在的令牌', 'info');
+                testProfile();
+            } else {
+                log('没有找到令牌', 'info');
+            }
+        };
+    </script>
+</body>
+</html>
