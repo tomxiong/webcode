@@ -26,6 +26,9 @@ jobs:
     - name: Install tsx globally
       run: npm install -g tsx
       
+    - name: Install coverage dependencies
+      run: npm install --save-dev @vitest/coverage-v8
+      
     # Skip TypeScript compilation in CI to avoid type errors
     - name: Skip TypeScript compilation
       run: echo "Skipping TypeScript compilation in CI environment"
