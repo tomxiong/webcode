@@ -1,0 +1,138 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+.pnpm-lock.yaml
+.npm/
+
+# TypeScript compiled output
+dist/
+build/
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# Bun
+bun.lockb
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
+
+# SQLite database files
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+
+# Testing
+coverage/
+.nyc_output/
+.vitest/
+.c8/
+__coverage__/
+test-results/
+playwright-report/
+playwright/.cache/
+test-report.html
+junit.xml
+test-results.json
+mochawesome-report/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor directories and files
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+Thumbs.db
+.history/
+*.sublime-project
+*.sublime-workspace
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+*.tmp
+.temp/
+.cache/
+
+# Debug files
+debug/
+.debug/
+
+# Build artifacts
+.cache/
+.parcel-cache/
+.rollup.cache/
+.webpack/
+.next/
+.nuxt/
+.output/
+.vite/
+.turbo/
+
+# Documentation
+docs/generated/
+api-docs/
+typedoc/
+jsdoc/
+
+# Misc
+.DS_Store
+.directory
+desktop.ini
+*.pem
+.vercel
+.netlify
+.firebase/
+
+# Project specific - CLSI Platform
+# Database backups
+db-backups/
+
+# Generated reports
+generated-reports/
+
+# Exported data
+exports/
+
+# Temporary test data
+test-data/
+
+# Local development configurations
+dev-config/
+
+# Generated documentation
+clsi-docs/
+
+# Localization files backup
+localization-backups/
