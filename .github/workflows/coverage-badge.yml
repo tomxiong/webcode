@@ -1,0 +1,63 @@
+name: Coverage Badge
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types:
+      - completed
+
+jobs:
+  coverage-badge:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download coverage report
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            run_id: ${{ github.event.workflow_run.id }}
+          });
+          
+          const matchArtifact = artifacts.data.artifacts.find(artifact => {
+            return artifact.name === "coverage-report"
+          });
+          
+          if (!matchArtifact) {
+            core.setFailed('No coverage report artifact found');
+            return;
+          }
+          
+          const download = await github.rest.actions.downloadArtifact({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            artifact_id: matchArtifact.id,
+            archive_format: 'zip'
+          });
+          
+          const fs = require('fs');
+          fs.writeFileSync('coverage-report.zip', Buffer.from(download.data));
+          
+          const { execSync } = require('child_process');
+          execSync('unzip coverage-report.zip -d coverage-report');
+    
+    - name: Generate coverage badge
+      uses: emibcn/badge-action@v1
+      with:
+        label: 'coverage'
+        status: $(cat coverage-report/coverage/coverage-summary.json | jq -r '.total.lines.pct + "%"')
+        color: $(cat coverage-report/coverage/coverage-summary.json | jq -r 'if .total.lines.pct >= 90 then "brightgreen" elif .total.lines.pct >= 80 then "green" elif .total.lines.pct >= 70 then "yellowgreen" elif .total.lines.pct >= 60 then "yellow" else "red" end')
+        path: coverage-badge.svg
+    
+    - name: Upload badge to Gist
+      if: github.ref == 'refs/heads/main'
+      uses: andymckay/append-gist-action@1.0.1
+      with:
+        auth: ${{ secrets.GIST_TOKEN }}
+        gistURL: https://gist.github.com/${{ github.repository_owner }}/coverage-badge-gist-id
+        file: coverage-badge.svg

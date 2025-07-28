@@ -1,0 +1,63 @@
+name: Update README Badges
+
+on:
+  workflow_run:
+    workflows: ["Test Coverage"]
+    types:
+      - completed
+
+jobs:
+  update-badges:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Download coverage report
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            run_id: ${{ github.event.workflow_run.id }}
+          });
+          
+          const matchArtifact = artifacts.data.artifacts.find(artifact => {
+            return artifact.name === "test-coverage-report"
+          });
+          
+          if (!matchArtifact) {
+            core.setFailed('No coverage report artifact found');
+            return;
+          }
+          
+          const download = await github.rest.actions.downloadArtifact({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            artifact_id: matchArtifact.id,
+            archive_format: 'zip'
+          });
+          
+          const fs = require('fs');
+          fs.writeFileSync('coverage-report.zip', Buffer.from(download.data));
+          
+          const { execSync } = require('child_process');
+          execSync('unzip coverage-report.zip');
+    
+    - name: Extract coverage percentage
+      id: extract-coverage
+      run: |
+        COVERAGE=$(grep -o "Overall Test Coverage: \*\*[0-9.]\+%" test-coverage-report.md | grep -o "[0-9.]\+")
+        echo "COVERAGE=$COVERAGE" >> $GITHUB_ENV
+    
+    - name: Update README badge
+      run: |
+        sed -i "s/coverage-[0-9.]\+%25-green/coverage-${COVERAGE}%25-green/" README.md
+    
+    - name: Commit and push changes
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "docs: Update coverage badge in README [skip ci]"
+        file_pattern: README.md
