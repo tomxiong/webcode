@@ -23,7 +23,10 @@ jobs:
     - name: Install dependencies
       run: npm install
     
-    - name: Build
+    - name: Install tsx globally
+      run: npm install -g tsx
+      
+    - name: Build TypeScript
       run: npm run build
     
     - name: Run unit tests
