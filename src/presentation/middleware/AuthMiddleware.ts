@@ -17,14 +17,20 @@ export const authMiddleware = async (c: Context, next: Next) => {
   try {
     const authHeader = c.req.header('Authorization')
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return c.json({ error: 'Missing or invalid authorization header' }, 401)
+      return c.json({ 
+        success: false,
+        error: 'Authorization header required' 
+      }, 401)
     }
 
     const token = authHeader.substring(7)
     const payload = jwtService.verifyToken(token)
     
     if (!payload) {
-      return c.json({ error: 'Invalid or expired token' }, 401)
+      return c.json({ 
+        success: false,
+        error: 'Invalid or expired token' 
+      }, 401)
     }
 
     // Add user info to context
@@ -34,7 +40,10 @@ export const authMiddleware = async (c: Context, next: Next) => {
 
     await next()
   } catch (error) {
-    return c.json({ error: 'Invalid or expired token' }, 401)
+    return c.json({ 
+      success: false,
+      error: 'Invalid or expired token' 
+    }, 401)
   }
 }
 
@@ -44,11 +53,17 @@ export const requireRole = (requiredRoles: UserRole[]) => {
     const userRole = c.get('role') as UserRole
     
     if (!userRole) {
-      return c.json({ error: 'Authentication required' }, 401)
+      return c.json({ 
+        success: false,
+        error: 'Authentication required' 
+      }, 401)
     }
 
     if (!requiredRoles.includes(userRole)) {
-      return c.json({ error: 'Insufficient permissions' }, 403)
+      return c.json({ 
+        success: false,
+        error: 'Insufficient permissions' 
+      }, 403)
     }
 
     await next()

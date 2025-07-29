@@ -35,7 +35,7 @@ export class MicroorganismService {
   async createMicroorganism(request: CreateMicroorganismRequest): Promise<{ success: boolean; microorganism?: MicroorganismEntity; error?: string }> {
     try {
       // Check if microorganism already exists
-      const existing = await this.microorganismRepository.findByGenusSpecies(request.genus, request.species)
+      const existing = await this.microorganismRepository.findByGenusAndSpecies(request.genus, request.species)
       if (existing) {
         return { success: false, error: 'Microorganism with this genus and species already exists' }
       }
@@ -43,8 +43,8 @@ export class MicroorganismService {
       const microorganism = new MicroorganismEntity(
         crypto.randomUUID(),
         request.genus,
-        request.groupName,
         request.species,
+        request.groupName,
         request.commonName,
         request.description
       )
@@ -64,17 +64,16 @@ export class MicroorganismService {
         return { success: false, error: 'Microorganism not found' }
       }
 
-      // Update fields if provided
-      if (request.genus !== undefined) existing.genus = request.genus
-      if (request.groupName !== undefined) existing.groupName = request.groupName
-      if (request.species !== undefined) existing.species = request.species
-      if (request.commonName !== undefined) existing.commonName = request.commonName
-      if (request.description !== undefined) existing.description = request.description
-      if (request.isActive !== undefined) existing.isActive = request.isActive
+      // Create updated entity with new values
+      const updatedEntity = existing.update({
+        genus: request.genus,
+        species: request.species,
+        group: request.groupName,
+        commonName: request.commonName,
+        description: request.description
+      })
 
-      existing.updatedAt = new Date()
-
-      const updated = await this.microorganismRepository.update(existing)
+      const updated = await this.microorganismRepository.update(updatedEntity)
       return { success: true, microorganism: updated }
     } catch (error) {
       console.error('Update microorganism error:', error)
@@ -99,11 +98,15 @@ export class MicroorganismService {
   }
 
   async getGenera(): Promise<string[]> {
-    return await this.microorganismRepository.getDistinctGenera()
+    const microorganisms = await this.microorganismRepository.findAll()
+    const genera = [...new Set(microorganisms.map(m => m.genus))]
+    return genera.sort()
   }
 
   async getSpeciesByGenus(genus: string): Promise<string[]> {
-    return await this.microorganismRepository.getSpeciesByGenus(genus)
+    const microorganisms = await this.microorganismRepository.findByGenus(genus)
+    const species = [...new Set(microorganisms.map(m => m.species))]
+    return species.sort()
   }
 
   async deleteMicroorganism(id: string): Promise<{ success: boolean; error?: string }> {
@@ -113,10 +116,19 @@ export class MicroorganismService {
         return { success: false, error: 'Microorganism not found' }
       }
 
-      // Soft delete by setting isActive to false
-      existing.isActive = false
-      existing.updatedAt = new Date()
-      await this.microorganismRepository.update(existing)
+      // Soft delete by creating new entity with isActive = false
+      const updatedEntity = new MicroorganismEntity(
+        existing.id,
+        existing.genus,
+        existing.species,
+        existing.group,
+        existing.commonName,
+        existing.description,
+        false, // isActive = false
+        existing.createdAt,
+        new Date() // updatedAt
+      )
+      await this.microorganismRepository.update(updatedEntity)
 
       return { success: true }
     } catch (error) {
@@ -137,7 +149,7 @@ export class MicroorganismService {
           hierarchy[micro.genus] = {}
         }
         
-        const group = micro.groupName || 'Ungrouped'
+        const group = micro.group || 'Ungrouped'
         if (!hierarchy[micro.genus][group]) {
           hierarchy[micro.genus][group] = []
         }
@@ -157,6 +169,7 @@ export class MicroorganismService {
       const microorganisms = await this.microorganismRepository.findAll()
       
       const stats = {
+        totalCount: microorganisms.length,
         total: microorganisms.length,
         active: microorganisms.filter(m => m.isActive).length,
         inactive: microorganisms.filter(m => !m.isActive).length,
@@ -167,12 +180,18 @@ export class MicroorganismService {
       // Count by genus
       microorganisms.forEach(m => {
         stats.byGenus[m.genus] = (stats.byGenus[m.genus] || 0) + 1
-        if (m.groupName) {
-          stats.byGroup[m.groupName] = (stats.byGroup[m.groupName] || 0) + 1
+        if (m.group) {
+          stats.byGroup[m.group] = (stats.byGroup[m.group] || 0) + 1
         }
       })
       
-      return stats
+      // Add genusCount for compatibility with tests
+      const genusCount = Object.keys(stats.byGenus).length
+      
+      return {
+        ...stats,
+        genusCount
+      }
     } catch (error) {
       console.error('Get microorganism statistics error:', error)
       throw error

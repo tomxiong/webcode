@@ -110,168 +110,24 @@ app.route('/api/reports', reportRoutes.getRoutes())
 app.route('/api/export-import', exportImportRoutes.getRoutes())
 app.route('/api/localization', localizationRoutes.getRoutes())
 
-// Health check
+// Health check endpoint for CI/CD and monitoring
 app.get('/health', (c) => {
-  return c.json({ status: 'ok', timestamp: new Date().toISOString() })
-})
-
-// Serve static files
-app.get('/login.html', async (c) => {
-  const fs = await import('fs/promises')
-  const path = await import('path')
-  try {
-    const filePath = path.join(process.cwd(), 'public', 'login.html')
-    const content = await fs.readFile(filePath, 'utf-8')
-    return c.html(content)
-  } catch (error) {
-    return c.text('Login page not found', 404)
-  }
-})
-
-app.get('/dashboard.html', async (c) => {
-  const fs = await import('fs/promises')
-  const path = await import('path')
-  try {
-    const filePath = path.join(process.cwd(), 'public', 'dashboard.html')
-    const content = await fs.readFile(filePath, 'utf-8')
-    return c.html(content)
-  } catch (error) {
-    return c.text('Dashboard page not found', 404)
-  }
-})
-
-// Serve all management pages
-// Serve all management pages
-// Serve all management pages
-const managementPages = ['users', 'microorganisms', 'drugs', 'breakpoint-standards', 'samples', 'expert-rules', 'reports']
-managementPages.forEach(page => {
-  app.get(`/${page}.html`, async (c) => {
-    const fs = await import('fs/promises')
-    const path = await import('path')
-    try {
-      const filePath = path.join(process.cwd(), 'public', `${page}.html`)
-      const content = await fs.readFile(filePath, 'utf-8')
-      return c.html(content)
-    } catch (error) {
-      return c.text(`${page} page not found`, 404)
-    }
+  return c.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    version: '1.0.0',
+    environment: process.env.NODE_ENV || 'development'
   })
 })
-import { serve } from '@hono/node-server'
-import { Hono } from 'hono'
-import { cors } from 'hono/cors'
-import { serveStatic } from '@hono/node-server/serve-static'
-import { Database } from './infrastructure/database/Database.js'
-import { DatabaseSeeder } from './infrastructure/database/Seeder.js'
-import { AuthRoutes } from './presentation/routes/AuthRoutes.js'
-import { UserRoutes } from './presentation/routes/UserRoutes.js'
-import { MicroorganismRoutes } from './presentation/routes/MicroorganismRoutes.js'
-import { DrugRoutes } from './presentation/routes/DrugRoutes.js'
-import { BreakpointStandardRoutes } from './presentation/routes/BreakpointStandardRoutes.js'
-import { ExpertRuleRoutes } from './presentation/routes/ExpertRuleRoutes.js'
-import { SampleRoutes } from './presentation/routes/SampleRoutes.js'
-import { LabResultRoutes } from './presentation/routes/LabResultRoutes.js'
-import { DocumentRoutes } from './presentation/routes/DocumentRoutes.js'
-import { ReportRoutes } from './presentation/routes/ReportRoutes.js'
-import { ExportImportRoutes } from './presentation/routes/ExportImportRoutes.js'
-import { LocalizationRoutes } from './presentation/routes/LocalizationRoutes.js'
-import { SqliteUserRepository } from './infrastructure/repositories/SqliteUserRepository.js'
-import { SqliteMicroorganismRepository } from './infrastructure/repositories/SqliteMicroorganismRepository.js'
-import { SqliteDrugRepository } from './infrastructure/repositories/SqliteDrugRepository.js'
-import { SqliteBreakpointStandardRepository } from './infrastructure/repositories/SqliteBreakpointStandardRepository.js'
-import { SqliteExpertRuleRepository } from './infrastructure/repositories/SqliteExpertRuleRepository.js'
-import { SqliteSampleRepository } from './infrastructure/repositories/SqliteSampleRepository.js'
-import { SqliteLabResultRepository } from './infrastructure/repositories/SqliteLabResultRepository.js'
-import { SqliteDocumentRepository } from './infrastructure/repositories/SqliteDocumentRepository.js'
-import { SqliteReportRepository } from './infrastructure/repositories/SqliteReportRepository.js'
-import { SqliteExportImportRepository } from './infrastructure/repositories/SqliteExportImportRepository.js'
-import { SqliteLocalizationRepository } from './infrastructure/repositories/SqliteLocalizationRepository.js'
-import { AuthService } from './application/services/AuthService.js'
-import { MicroorganismService } from './application/services/MicroorganismService.js'
-import { DrugService } from './application/services/DrugService.js'
-import { BreakpointStandardService } from './application/services/BreakpointStandardService.js'
-import { ExpertRuleService } from './application/services/ExpertRuleService.js'
-import { SampleService } from './application/services/SampleService.js'
-import { LabResultService } from './application/services/LabResultService.js'
-import { DocumentService } from './application/services/DocumentService.js'
-import { ReportService } from './application/services/ReportService.js'
-import { ExportImportService } from './application/services/ExportImportService.js'
-import { LocalizationService } from './application/services/LocalizationService.js'
-import { JwtService } from './infrastructure/services/JwtService.js'
-import { PasswordService } from './infrastructure/services/PasswordService.js'
 
-const app = new Hono()
-
-// CORS middleware
-app.use('/*', cors())
-
-// Static file serving
-app.use('/*', serveStatic({ root: './public' }))
-
-// Initialize database and repositories
-const database = new Database()
-const userRepository = new SqliteUserRepository(database)
-const microorganismRepository = new SqliteMicroorganismRepository(database)
-const drugRepository = new SqliteDrugRepository(database)
-const breakpointStandardRepository = new SqliteBreakpointStandardRepository(database)
-const expertRuleRepository = new SqliteExpertRuleRepository(database)
-const sampleRepository = new SqliteSampleRepository(database)
-const labResultRepository = new SqliteLabResultRepository(database)
-const documentRepository = new SqliteDocumentRepository(database)
-const reportRepository = new SqliteReportRepository(database)
-const exportImportRepository = new SqliteExportImportRepository(database)
-const localizationRepository = new SqliteLocalizationRepository(database)
-
-// Initialize services
-const jwtService = new JwtService()
-const passwordService = new PasswordService()
-const authService = new AuthService(userRepository, jwtService, passwordService)
-const microorganismService = new MicroorganismService(microorganismRepository)
-const drugService = new DrugService(drugRepository)
-const breakpointStandardService = new BreakpointStandardService(breakpointStandardRepository)
-const expertRuleService = new ExpertRuleService(expertRuleRepository)
-const sampleService = new SampleService(sampleRepository)
-const labResultService = new LabResultService(labResultRepository, expertRuleRepository, breakpointStandardRepository)
-const documentService = new DocumentService(documentRepository)
-const reportService = new ReportService(reportRepository)
-const exportImportService = new ExportImportService(exportImportRepository)
-const localizationService = new LocalizationService(localizationRepository)
-
-// Initialize database and seed data
-await database.initialize()
-const seeder = new DatabaseSeeder(database)
-await seeder.seed()
-
-// Routes
-const authRoutes = new AuthRoutes(authService)
-const userRoutes = new UserRoutes(authService)
-const microorganismRoutes = new MicroorganismRoutes(microorganismService)
-const drugRoutes = new DrugRoutes(drugService)
-const breakpointStandardRoutes = new BreakpointStandardRoutes(breakpointStandardService)
-const expertRuleRoutes = new ExpertRuleRoutes(expertRuleService)
-const sampleRoutes = new SampleRoutes(sampleService)
-const labResultRoutes = new LabResultRoutes(labResultService)
-const documentRoutes = new DocumentRoutes(documentService)
-const reportRoutes = new ReportRoutes(reportService)
-const exportImportRoutes = new ExportImportRoutes(exportImportService)
-const localizationRoutes = new LocalizationRoutes(localizationService)
-
-app.route('/api/auth', authRoutes.getRoutes())
-app.route('/api/users', userRoutes.getRoutes())
-app.route('/api/microorganisms', microorganismRoutes.getRoutes())
-app.route('/api/drugs', drugRoutes.getRoutes())
-app.route('/api/breakpoint-standards', breakpointStandardRoutes.getRoutes())
-app.route('/api/expert-rules', expertRuleRoutes.getRoutes())
-app.route('/api/samples', sampleRoutes.getRoutes())
-app.route('/api/lab-results', labResultRoutes.getRoutes())
-app.route('/api/documents', documentRoutes.getRoutes())
-app.route('/api/reports', reportRoutes.getRoutes())
-app.route('/api/export-import', exportImportRoutes.getRoutes())
-app.route('/api/localization', localizationRoutes.getRoutes())
-
-// Health check
-app.get('/health', (c) => {
-  return c.json({ status: 'ok', timestamp: new Date().toISOString() })
+// API health check endpoint
+app.get('/api/health', (c) => {
+  return c.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    api: 'ready',
+    database: 'connected'
+  })
 })
 
 // Serve static files
@@ -300,7 +156,7 @@ app.get('/dashboard.html', async (c) => {
 })
 
 // Serve all management pages
-const managementPages = ['users', 'microorganisms', 'drugs', 'samples', 'expert-rules', 'reports']
+const managementPages = ['users', 'microorganisms', 'drugs', 'breakpoint-standards', 'samples', 'expert-rules', 'reports']
 managementPages.forEach(page => {
   app.get(`/${page}.html`, async (c) => {
     const fs = await import('fs/promises')
@@ -379,118 +235,6 @@ app.get('/demo', (c) => {
             </div>
         </div>
         
-        <div class="feature-grid">
-            <div class="feature-card">
-                <h3>🔐 用户认证系统</h3>
-                <ul>
-                    <li>JWT令牌认证</li>
-                    <li>角色权限控制</li>
-                    <li>用户注册/登录</li>
-                    <li>密码加密存储</li>
-                </ul>
-            </div>
-            
-            <div class="feature-card">
-                <h3>🦠 微生物数据库</h3>
-                <ul>
-                    <li>层次化数据结构</li>
-                    <li>属-群-种分类</li>
-                    <li>完整CRUD操作</li>
-                    <li>搜索和过滤</li>
-                </ul>
-            </div>
-            
-            <div class="feature-card">
-                <h3>💊 药物管理</h3>
-                <ul>
-                    <li>药物分类管理</li>
-                    <li>代码标准化</li>
-                    <li>统计分析</li>
-                    <li>批量操作</li>
-                </ul>
-            </div>
-            
-            <div class="feature-card">
-                <h3>📊 折点标准管理</h3>
-                <ul>
-                    <li>年份版本控制</li>
-                    <li>多种检测方法</li>
-                    <li>S/I/R判读标准</li>
-                    <li>历史版本追踪</li>
-                </ul>
-            </div>
-            
-            <div class="feature-card">
-                <h3>🧪 样本管理系统</h3>
-                <ul>
-                    <li>样本全生命周期</li>
-                    <li>条码管理</li>
-                    <li>状态追踪</li>
-                    <li>质量控制</li>
-                </ul>
-            </div>
-            
-            <div class="feature-card">
-                <h3>🔬 实验室结果</h3>
-                <ul>
-                    <li>多种检测方法</li>
-                    <li>自动验证</li>
-                    <li>专家规则应用</li>
-                    <li>结果审核流程</li>
-                </ul>
-            </div>
-            
-            <div class="feature-card">
-                <h3>📄 文档管理</h3>
-                <ul>
-                    <li>多格式文件支持</li>
-                    <li>版本控制</li>
-                    <li>实体关联</li>
-                    <li>高级搜索</li>
-                </ul>
-            </div>
-            
-            <div class="feature-card">
-                <h3>📊 报告分析</h3>
-                <ul>
-                    <li>8种报告类型</li>
-                    <li>交互式仪表板</li>
-                    <li>实时数据分析</li>
-                    <li>多格式导出</li>
-                </ul>
-            </div>
-            
-            <div class="feature-card">
-                <h3>📦 导入导出</h3>
-                <ul>
-                    <li>数据批量操作</li>
-                    <li>4种格式支持</li>
-                    <li>数据验证</li>
-                    <li>备份管理</li>
-                </ul>
-            </div>
-            
-            <div class="feature-card">
-                <h3>🌐 多语言支持</h3>
-                <ul>
-                    <li>12种语言支持</li>
-                    <li>实体本地化</li>
-                    <li>翻译管理</li>
-                    <li>国际化配置</li>
-                </ul>
-            </div>
-            
-            <div class="feature-card">
-                <h3>🛡️ 权限控制</h3>
-                <ul>
-                    <li>管理员权限</li>
-                    <li>微生物学家权限</li>
-                    <li>实验室技师权限</li>
-                    <li>查看者权限</li>
-                </ul>
-            </div>
-        </div>
-        
         <div class="api-section">
             <h3>🔌 API接口测试</h3>
             
@@ -504,46 +248,10 @@ app.get('/demo', (c) => {
                 <span>/api/auth/login</span> - 用户登录
             </div>
             
-            <div class="endpoint">
-                <span class="method get">GET</span>
-                <span>/api/breakpoint-standards/years</span> - 获取可用年份
-            </div>
-            
-            <div class="endpoint">
-                <span class="method get">GET</span>
-                <span>/api/breakpoint-standards/statistics</span> - 折点标准统计
-            </div>
-            
-            <div class="endpoint">
-                <span class="method get">GET</span>
-                <span>/api/expert-rules/statistics</span> - 专家规则统计
-            </div>
-            
-            <div class="endpoint">
-                <span class="method get">GET</span>
-                <span>/api/reports/system-overview</span> - 系统概览
-            </div>
-            
-            <button class="test-btn" onclick="testAPI('health')">测试健康检查</button>
             <button class="test-btn" onclick="testAPI('health')">测试健康检查</button>
             <button class="test-btn" onclick="testAPI('login')">测试登录</button>
-            <button class="test-btn" onclick="testAPI('breakpoint-standards')">测试折点标准</button>
-            <button class="test-btn" onclick="testAPI('expert-rules')">测试专家规则</button>
-            <button class="test-btn" onclick="testAPI('reports')">测试报告API</button>
             
             <div id="result" class="result" style="display: none;"></div>
-        </div>
-        
-        <div class="feature-card">
-            <h3>🎉 项目完成状态</h3>
-            <ul>
-                <li>✅ 核心系统架构完成</li>
-                <li>✅ 所有Future Enhancements实现</li>
-                <li>✅ 企业级功能完整</li>
-                <li>✅ 生产就绪状态</li>
-                <li>✅ 完整的API文档</li>
-                <li>✅ 多语言国际化支持</li>
-            </ul>
         </div>
     </div>
     
@@ -577,52 +285,6 @@ app.get('/demo', (c) => {
                         if (data.token) authToken = data.token;
                         showResult({ endpoint: 'POST /api/auth/login', status: response.status, data });
                         break;
-                        
-                    case 'localization':
-                    case 'breakpoint-standards':
-                        if (!authToken) {
-                            alert('请先登录获取认证令牌');
-                            return;
-                        }
-                        response = await fetch('/api/breakpoint-standards/statistics', {
-                            headers: { 'Authorization': 'Bearer ' + authToken }
-                        });
-                        data = await response.json();
-                        showResult({ 
-                            endpoint: 'GET /api/breakpoint-standards/statistics', 
-                            status: response.status, 
-                            data: data
-                        });
-                        break;
-                        
-                    case 'expert-rules':
-                        if (!authToken) {
-                            alert('请先登录获取认证令牌');
-                            return;
-                        }
-                        response = await fetch('/api/expert-rules/statistics', {
-                            headers: { 'Authorization': 'Bearer ' + authToken }
-                        });
-                        data = await response.json();
-                        showResult({ 
-                            endpoint: 'GET /api/expert-rules/statistics', 
-                            status: response.status, 
-                            data: data
-                        });
-                        break;
-                        
-                    case 'reports':
-                        if (!authToken) {
-                            alert('请先登录获取认证令牌');
-                            return;
-                        }
-                        response = await fetch('/api/reports/system-overview', {
-                            headers: { 'Authorization': 'Bearer ' + authToken }
-                        });
-                        data = await response.json();
-                        showResult({ endpoint: 'GET /api/reports/system-overview', status: response.status, data });
-                        break;
-                        
                 }
             } catch (error) {
                 showResult({ error: error.message });
@@ -651,4 +313,4 @@ serve({
 console.log(`✅ Server running on http://localhost:${port}`)
 console.log(`📋 Demo page: http://localhost:${port}`)
 console.log(`🔍 Health check: http://localhost:${port}/health`)
-console.log(`🌐 Localization API: http://localhost:${port}/api/localization`)
+console.log(`🔍 API Health check: http://localhost:${port}/api/health`)

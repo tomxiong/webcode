@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { AuthService } from '../../application/services/AuthService.js'
 import { authMiddleware } from '../middleware/AuthMiddleware.js'
+import { UserRole } from '../../domain/entities/User.js'
 
 export class UserRoutes {
   private authService: AuthService
@@ -46,10 +47,10 @@ export class UserRoutes {
           active: users.filter(u => u.isActive).length,
           inactive: users.filter(u => !u.isActive).length,
           byRole: {
-            admin: users.filter(u => u.role === 'admin').length,
-            microbiologist: users.filter(u => u.role === 'microbiologist').length,
-            lab_technician: users.filter(u => u.role === 'lab_technician').length,
-            viewer: users.filter(u => u.role === 'viewer').length
+            admin: users.filter(u => u.role === UserRole.ADMIN).length,
+            microbiologist: users.filter(u => u.role === UserRole.MICROBIOLOGIST).length,
+            lab_technician: users.filter(u => u.role === UserRole.LAB_TECHNICIAN).length,
+            viewer: users.filter(u => u.role === UserRole.VIEWER).length
           }
         }
         
@@ -73,7 +74,7 @@ export class UserRoutes {
           return c.json({ success: false, error: 'Missing required fields' }, 400)
         }
 
-        const result = await this.authService.register(username, email, password, role)
+        const result = await this.authService.register({ username, email, password, role })
         
         return c.json({
           success: true,

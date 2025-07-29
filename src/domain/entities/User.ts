@@ -12,10 +12,10 @@ export interface User {
 }
 
 export enum UserRole {
-  ADMIN = 'admin',
-  MICROBIOLOGIST = 'microbiologist',
-  LAB_TECHNICIAN = 'lab_technician',
-  VIEWER = 'viewer'
+  ADMIN = 'ADMIN',
+  MICROBIOLOGIST = 'MICROBIOLOGIST',
+  LAB_TECHNICIAN = 'LAB_TECHNICIAN',
+  VIEWER = 'VIEWER'
 }
 
 export class UserEntity {

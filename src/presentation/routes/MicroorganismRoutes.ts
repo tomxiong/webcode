@@ -14,10 +14,20 @@ export class MicroorganismRoutes {
     // Get all microorganisms (public for lab technicians)
     this.app.get('/', authMiddleware, async (c) => {
       try {
-        const microorganisms = await this.microorganismService.getAllMicroorganisms()
-        return c.json({
-          success: true,
-          data: microorganisms.map(m => ({
+        const query = c.req.query()
+        const limit = query.limit ? parseInt(query.limit) : undefined
+        const offset = query.offset ? parseInt(query.offset) : 0
+        
+        // If pagination is requested, use search with criteria
+        if (limit !== undefined) {
+          const criteria = {
+            limit: limit,
+            offset: offset
+          }
+          const microorganisms = await this.microorganismService.searchMicroorganisms(criteria)
+          const allMicroorganisms = await this.microorganismService.getAllMicroorganisms()
+          
+          const mappedData = microorganisms.map(m => ({
             id: m.id,
             genus: m.genus,
             groupName: m.group,
@@ -28,7 +38,35 @@ export class MicroorganismRoutes {
             createdAt: m.createdAt,
             updatedAt: m.updatedAt
           }))
-        })
+          
+          return c.json({
+            success: true,
+            data: mappedData,
+            total: allMicroorganisms.length,
+            limit: limit,
+            offset: offset
+          })
+        } else {
+          // No pagination, return all
+          const microorganisms = await this.microorganismService.getAllMicroorganisms()
+          const mappedData = microorganisms.map(m => ({
+            id: m.id,
+            genus: m.genus,
+            groupName: m.group,
+            species: m.species,
+            commonName: m.commonName,
+            description: m.description,
+            isActive: m.isActive,
+            createdAt: m.createdAt,
+            updatedAt: m.updatedAt
+          }))
+          
+          return c.json({
+            success: true,
+            data: mappedData,
+            total: mappedData.length
+          })
+        }
       } catch (error) {
         console.error('Get microorganisms error:', error)
         return c.json({ error: 'Failed to fetch microorganisms' }, 500)
@@ -107,6 +145,11 @@ export class MicroorganismRoutes {
         }
 
         const microorganisms = await this.microorganismService.searchMicroorganisms(criteria)
+        
+        // Get total count for pagination
+        const allMicroorganisms = await this.microorganismService.getAllMicroorganisms()
+        const total = allMicroorganisms.length
+
         return c.json({
           success: true,
           data: microorganisms.map(m => ({
@@ -119,7 +162,11 @@ export class MicroorganismRoutes {
             isActive: m.isActive,
             createdAt: m.createdAt,
             updatedAt: m.updatedAt
-          }))
+          })),
+          total: total,
+          count: microorganisms.length,
+          limit: criteria.limit,
+          offset: criteria.offset || 0
         })
       } catch (error) {
         console.error('Search microorganisms error:', error)
@@ -181,17 +228,15 @@ export class MicroorganismRoutes {
 
         return c.json({
           success: true,
-          data: {
-            id: result.microorganism!.id,
-            genus: result.microorganism!.genus,
-            groupName: result.microorganism!.group,
-            species: result.microorganism!.species,
-            commonName: result.microorganism!.commonName,
-            description: result.microorganism!.description,
-            isActive: result.microorganism!.isActive,
-            createdAt: result.microorganism!.createdAt,
-            updatedAt: result.microorganism!.updatedAt
-          }
+          id: result.microorganism!.id,
+          genus: result.microorganism!.genus,
+          groupName: result.microorganism!.group,
+          species: result.microorganism!.species,
+          commonName: result.microorganism!.commonName,
+          description: result.microorganism!.description,
+          isActive: result.microorganism!.isActive,
+          createdAt: result.microorganism!.createdAt,
+          updatedAt: result.microorganism!.updatedAt
         }, 201)
       } catch (error) {
         console.error('Create microorganism error:', error)

@@ -57,6 +57,7 @@ export class ExpertRuleService {
   }
 
   async getRuleStatistics(): Promise<{
+    total: number
     totalRules: number
     rulesByType: Record<ExpertRuleType, number>
     rulesByYear: Record<number, number>
@@ -75,6 +76,7 @@ export class ExpertRuleService {
     }, {} as Record<number, number>)
 
     return {
+      total: allRules.length,
       totalRules: allRules.length,
       rulesByType,
       rulesByYear,
@@ -450,6 +452,6 @@ export class ExpertRuleService {
       new Date()
     )
 
-    return await this.expertRuleRepository.update(updated)
+    return await this.expertRuleRepository.update(id, updated)
   }
 }

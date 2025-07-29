@@ -146,9 +146,37 @@ export class SampleRoutes {
       try {
         const sampleData = await c.req.json()
         
-        // Convert date strings to Date objects
-        if (sampleData.collectionDate) {
+        // Validate required fields
+        if (!sampleData.patientId) {
+          return c.json({ 
+            success: false, 
+            error: 'Missing required field: patientId' 
+          }, 400)
+        }
+        
+        if (!sampleData.sampleType) {
+          return c.json({ 
+            success: false, 
+            error: 'Missing required field: sampleType' 
+          }, 400)
+        }
+        
+        if (!sampleData.specimenSource) {
+          return c.json({ 
+            success: false, 
+            error: 'Missing required field: specimenSource' 
+          }, 400)
+        }
+        
+        // Set default values if not provided
+        if (!sampleData.collectionDate) {
+          sampleData.collectionDate = new Date()
+        } else if (typeof sampleData.collectionDate === 'string') {
           sampleData.collectionDate = new Date(sampleData.collectionDate)
+        }
+        
+        if (!sampleData.priority) {
+          sampleData.priority = 'routine'
         }
         
         const sample = await this.sampleService.createSample(sampleData)
@@ -164,7 +192,7 @@ export class SampleRoutes {
           success: false, 
           error: 'Failed to create sample',
           details: error instanceof Error ? error.message : 'Unknown error'
-        }, 500)
+        }, 400)
       }
     })
 

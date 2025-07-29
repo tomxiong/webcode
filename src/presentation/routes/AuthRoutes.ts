@@ -39,7 +39,7 @@ export class AuthRoutes {
         console.error('❌ Login error:', error.message)
         return c.json({ 
           success: false,
-          error: 'Invalid credentials',
+          error: 'Invalid username or password',
           message: error.message 
         }, 401)
       }
@@ -51,7 +51,10 @@ export class AuthRoutes {
         const { username, email, password, role } = await c.req.json()
         
         if (!username || !email || !password) {
-          return c.json({ error: 'Username, email, and password are required' }, 400)
+          return c.json({ 
+            success: false,
+            error: 'Username, email, and password are required' 
+          }, 400)
         }
 
         const registerResult = await this.authService.register({ username, email, password, role })
@@ -59,11 +62,15 @@ export class AuthRoutes {
         return c.json({
           success: true,
           token: registerResult.token,
-          user: registerResult.user
-        })
+          user: registerResult.user,
+          userId: registerResult.user.id
+        }, 201)
       } catch (error) {
         console.error('Register error:', error)
-        return c.json({ error: error.message || 'Registration failed' }, 400)
+        return c.json({ 
+          success: false,
+          error: error.message || 'Registration failed' 
+        }, 400)
       }
     })
 

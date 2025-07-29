@@ -68,16 +68,31 @@ export class DrugService {
         }
       }
 
-      // Update fields if provided
-      if (request.name !== undefined) existing.name = request.name
-      if (request.code !== undefined) existing.code = request.code
-      if (request.category !== undefined) existing.category = request.category
-      if (request.description !== undefined) existing.description = request.description
-      if (request.isActive !== undefined) existing.isActive = request.isActive
+      // Create updated entity
+      const updates: any = {}
+      if (request.name !== undefined) updates.name = request.name
+      if (request.code !== undefined) updates.code = request.code
+      if (request.category !== undefined) updates.category = request.category
+      if (request.description !== undefined) updates.description = request.description
 
-      existing.updatedAt = new Date()
+      const updatedEntity = existing.update(updates)
+      
+      // Handle isActive separately since it's not in the update method
+      let finalEntity = updatedEntity
+      if (request.isActive !== undefined) {
+        finalEntity = new DrugEntity(
+          updatedEntity.id,
+          updatedEntity.name,
+          updatedEntity.code,
+          updatedEntity.category,
+          updatedEntity.description,
+          request.isActive,
+          updatedEntity.createdAt,
+          new Date()
+        )
+      }
 
-      const updated = await this.drugRepository.update(existing)
+      const updated = await this.drugRepository.update(finalEntity)
       return { success: true, drug: updated }
     } catch (error) {
       console.error('Update drug error:', error)
@@ -117,9 +132,17 @@ export class DrugService {
       }
 
       // Soft delete by setting isActive to false
-      existing.isActive = false
-      existing.updatedAt = new Date()
-      await this.drugRepository.update(existing)
+      const deactivatedEntity = new DrugEntity(
+        existing.id,
+        existing.name,
+        existing.code,
+        existing.category,
+        existing.description,
+        false, // isActive = false
+        existing.createdAt,
+        new Date() // updatedAt
+      )
+      await this.drugRepository.update(deactivatedEntity)
 
       return { success: true }
     } catch (error) {
@@ -129,6 +152,7 @@ export class DrugService {
   }
 
   async getDrugStatistics(): Promise<{
+    total: number
     totalDrugs: number
     activeCount: number
     inactiveCount: number
@@ -145,6 +169,7 @@ export class DrugService {
       }, {} as { [key in DrugCategory]: number })
 
       return {
+        total: allDrugs.length,
         totalDrugs: allDrugs.length,
         activeCount: activeDrugs.length,
         inactiveCount: inactiveDrugs.length,

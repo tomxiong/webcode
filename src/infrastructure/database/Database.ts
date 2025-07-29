@@ -26,7 +26,7 @@ export class Database {
         username TEXT UNIQUE NOT NULL,
         email TEXT UNIQUE NOT NULL,
         password_hash TEXT NOT NULL,
-        role TEXT NOT NULL CHECK (role IN ('admin', 'microbiologist', 'lab_technician', 'viewer')),
+        role TEXT NOT NULL CHECK (role IN ('ADMIN', 'MICROBIOLOGIST', 'LAB_TECHNICIAN', 'VIEWER')),
         is_active BOOLEAN DEFAULT 1,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
