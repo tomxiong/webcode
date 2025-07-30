@@ -1,14 +1,48 @@
-import { LabResultRepository } from '../../domain/repositories/LabResultRepository.js'
-import { LabResult, LabResultEntity, CreateLabResultRequest, UpdateLabResultRequest, ValidationRequest, ValidationStatus, TestMethod, ResultInterpretation } from '../../domain/entities/LabResult.js'
-import { ExpertRuleService } from './ExpertRuleService.js'
-import { BreakpointStandardService } from './BreakpointStandardService.js'
+import { LabResultRepository, LabResultSearchCriteria } from '../../domain/repositories/LabResultRepository.js'
+import { LabResultEntity, TestMethod, SensitivityResult, ValidationStatus } from '../../domain/entities/LabResult.js'
+
+export interface CreateLabResultRequest {
+  sampleId: string
+  microorganismId: string
+  drugId: string
+  testMethod: TestMethod
+  rawResult: string
+  interpretation?: SensitivityResult
+  technician: string
+  testDate: Date
+  breakpointUsed?: string
+  expertRuleApplied?: string
+  instrumentId?: string
+  comments?: string
+}
+
+export interface UpdateLabResultRequest {
+  id: string
+  rawResult?: string
+  interpretation?: SensitivityResult
+  breakpointUsed?: string
+  expertRuleApplied?: string
+  validationComments?: string
+  qualityControlPassed?: boolean
+  comments?: string
+}
+
+export interface ValidationRequest {
+  id: string
+  validationStatus: ValidationStatus
+  validationComments?: string
+  reviewedBy: string
+}
+
+export interface LabResultServiceResult<T> {
+  success: boolean
+  data?: T
+  error?: string
+  labResult?: LabResultEntity
+}
 
 export class LabResultService {
-  constructor(
-    private labResultRepository: LabResultRepository,
-    private expertRuleService: ExpertRuleService,
-    private breakpointStandardService: BreakpointStandardService
-  ) {}
+  constructor(private labResultRepository: LabResultRepository) {}
 
   async getAllLabResults(): Promise<LabResultEntity[]> {
     return await this.labResultRepository.findAll()
@@ -18,167 +52,188 @@ export class LabResultService {
     return await this.labResultRepository.findById(id)
   }
 
-  async getLabResultsBySample(sampleId: string): Promise<LabResultEntity[]> {
+  async getLabResultsBySampleId(sampleId: string): Promise<LabResultEntity[]> {
     return await this.labResultRepository.findBySampleId(sampleId)
   }
 
-  async getLabResultsByMicroorganism(microorganismId: string): Promise<LabResultEntity[]> {
+  async getLabResultsByMicroorganismId(microorganismId: string): Promise<LabResultEntity[]> {
     return await this.labResultRepository.findByMicroorganismId(microorganismId)
+  }
+
+  async getLabResultsByDrugId(drugId: string): Promise<LabResultEntity[]> {
+    return await this.labResultRepository.findByDrugId(drugId)
   }
 
   async getLabResultsByValidationStatus(status: ValidationStatus): Promise<LabResultEntity[]> {
     return await this.labResultRepository.findByValidationStatus(status)
   }
 
-  async getLabResultsByDateRange(startDate: Date, endDate: Date): Promise<LabResultEntity[]> {
-    return await this.labResultRepository.findByDateRange(startDate, endDate)
+  async createLabResult(request: CreateLabResultRequest): Promise<LabResultServiceResult<LabResultEntity>> {
+    try {
+      // Validate required fields
+      if (!request.sampleId) {
+        return { success: false, error: 'Sample ID is required' }
+      }
+      if (!request.microorganismId) {
+        return { success: false, error: 'Microorganism ID is required' }
+      }
+      if (!request.drugId) {
+        return { success: false, error: 'Drug ID is required' }
+      }
+      if (!request.technician) {
+        return { success: false, error: 'Technician is required' }
+      }
+      if (!request.rawResult) {
+        return { success: false, error: 'Raw result is required' }
+      }
+
+      const labResult = LabResultEntity.create(
+        request.sampleId,
+        request.microorganismId,
+        request.drugId,
+        request.testMethod,
+        request.rawResult,
+        request.technician,
+        request.testDate,
+        request.interpretation,
+        request.breakpointUsed,
+        request.expertRuleApplied,
+        request.instrumentId,
+        request.comments
+      )
+
+      const savedResult = await this.labResultRepository.save(labResult)
+      return { success: true, labResult: savedResult }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
   }
 
-  async createLabResult(resultData: CreateLabResultRequest): Promise<LabResultEntity> {
-    // Validate required fields
-    if (!resultData.sampleId || !resultData.microorganismId || !resultData.drugId) {
-      throw new Error('Missing required fields: sampleId, microorganismId, drugId')
+  async updateLabResult(request: UpdateLabResultRequest): Promise<LabResultServiceResult<LabResultEntity>> {
+    try {
+      const existing = await this.labResultRepository.findById(request.id)
+      if (!existing) {
+        return { success: false, error: 'Lab result not found' }
+      }
+
+      const updated = existing.update({
+        rawResult: request.rawResult,
+        interpretation: request.interpretation,
+        breakpointUsed: request.breakpointUsed,
+        expertRuleApplied: request.expertRuleApplied,
+        validationComments: request.validationComments,
+        qualityControlPassed: request.qualityControlPassed,
+        comments: request.comments
+      })
+
+      const savedResult = await this.labResultRepository.update(request.id, updated)
+      return { success: true, labResult: savedResult }
+    } catch (error: any) {
+      return { success: false, error: error.message }
     }
-
-    if (!resultData.technician || !resultData.testMethod) {
-      throw new Error('Missing required fields: technician, testMethod')
-    }
-
-    // Create the lab result
-    const labResult = await this.labResultRepository.save(resultData)
-
-    // Auto-validate using expert rules and breakpoint standards
-    await this.autoValidateResult(labResult.id)
-
-    return await this.getLabResultById(labResult.id) || labResult
   }
 
-  async updateLabResult(id: string, updateData: UpdateLabResultRequest): Promise<LabResultEntity | null> {
-    const existing = await this.labResultRepository.findById(id)
-    if (!existing) {
-      throw new Error('Lab result not found')
-    }
+  async deleteLabResult(id: string): Promise<LabResultServiceResult<boolean>> {
+    try {
+      const existing = await this.labResultRepository.findById(id)
+      if (!existing) {
+        return { success: false, error: 'Lab result not found' }
+      }
 
-    return await this.labResultRepository.update(id, updateData)
+      const deleted = await this.labResultRepository.delete(id)
+      return { success: deleted }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
   }
 
-  async validateLabResult(validation: ValidationRequest): Promise<LabResultEntity | null> {
-    const existing = await this.labResultRepository.findById(validation.labResultId)
-    if (!existing) {
-      throw new Error('Lab result not found')
-    }
+  async validateLabResult(request: ValidationRequest): Promise<LabResultServiceResult<LabResultEntity>> {
+    try {
+      const existing = await this.labResultRepository.findById(request.id)
+      if (!existing) {
+        return { success: false, error: 'Lab result not found' }
+      }
 
-    return await this.labResultRepository.validate(validation)
+      let updated: LabResultEntity
+      switch (request.validationStatus) {
+        case ValidationStatus.VALIDATED:
+          updated = existing.validate()
+          break
+        case ValidationStatus.REJECTED:
+          updated = existing.reject(request.validationComments || '', request.reviewedBy)
+          break
+        case ValidationStatus.REQUIRES_REVIEW:
+          updated = existing.requiresReview(request.validationComments || '')
+          break
+        default:
+          updated = existing.update({
+            validationStatus: request.validationStatus,
+            validationComments: request.validationComments,
+            reviewedBy: request.reviewedBy
+          })
+      }
+
+      const savedResult = await this.labResultRepository.update(request.id, updated)
+      return { success: true, labResult: savedResult }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
   }
 
-  async deleteLabResult(id: string): Promise<boolean> {
-    const existing = await this.labResultRepository.findById(id)
-    if (!existing) {
-      throw new Error('Lab result not found')
-    }
-
-    return await this.labResultRepository.delete(id)
+  async searchLabResults(criteria: LabResultSearchCriteria): Promise<LabResultEntity[]> {
+    return await this.labResultRepository.search(criteria)
   }
 
   async getLabResultStatistics(): Promise<{
+    total: number
     totalResults: number
-    resultsByMethod: Record<string, number>
-    resultsByInterpretation: Record<string, number>
-    validationStats: Record<string, number>
+    byValidationStatus: Record<ValidationStatus, number>
+    byInterpretation: Record<SensitivityResult, number>
+    byTestMethod: Record<TestMethod, number>
     qualityControlStats: {
       passed: number
       failed: number
-      percentage: number
+      total: number
     }
   }> {
-    return await this.labResultRepository.getStatistics()
+    const allResults = await this.labResultRepository.findAll()
+    
+    const byValidationStatus = allResults.reduce((acc, result) => {
+      acc[result.validationStatus] = (acc[result.validationStatus] || 0) + 1
+      return acc
+    }, {} as Record<ValidationStatus, number>)
+
+    const byInterpretation = allResults.reduce((acc, result) => {
+      if (result.interpretation) {
+        acc[result.interpretation] = (acc[result.interpretation] || 0) + 1
+      }
+      return acc
+    }, {} as Record<SensitivityResult, number>)
+
+    const byTestMethod = allResults.reduce((acc, result) => {
+      acc[result.testMethod] = (acc[result.testMethod] || 0) + 1
+      return acc
+    }, {} as Record<TestMethod, number>)
+
+    const qualityControlPassed = allResults.filter(r => r.qualityControlPassed).length
+    const qualityControlFailed = allResults.filter(r => !r.qualityControlPassed).length
+
+    return {
+      total: allResults.length,
+      totalResults: allResults.length,
+      byValidationStatus,
+      byInterpretation,
+      byTestMethod,
+      qualityControlStats: {
+        passed: qualityControlPassed,
+        failed: qualityControlFailed,
+        total: allResults.length
+      }
+    }
   }
 
-  async autoValidateResult(labResultId: string): Promise<LabResultEntity | null> {
-    const labResult = await this.getLabResultById(labResultId)
-    if (!labResult) {
-      throw new Error('Lab result not found')
-    }
-
-    try {
-      // Get applicable breakpoint standard
-      const breakpointStandards = await this.breakpointStandardService.getBreakpointStandardsByMicroorganismAndDrug(
-        labResult.microorganismId,
-        labResult.drugId,
-        new Date().getFullYear()
-      )
-
-      let interpretation = ResultInterpretation.NO_INTERPRETATION
-      let breakpointUsed = ''
-
-      // Apply breakpoint interpretation if available
-      if (breakpointStandards.length > 0) {
-        const standard = breakpointStandards[0] // Use the first matching standard
-        const rawValue = parseFloat(labResult.rawResult.toString())
-        
-        if (!isNaN(rawValue)) {
-          if (standard.susceptibleMin !== null && standard.susceptibleMax !== null) {
-            if (rawValue >= standard.susceptibleMin && rawValue <= standard.susceptibleMax) {
-              interpretation = ResultInterpretation.SUSCEPTIBLE
-            }
-          }
-          if (standard.intermediateMin !== null && standard.intermediateMax !== null) {
-            if (rawValue >= standard.intermediateMin && rawValue <= standard.intermediateMax) {
-              interpretation = ResultInterpretation.INTERMEDIATE
-            }
-          }
-          if (standard.resistantMin !== null && standard.resistantMax !== null) {
-            if (rawValue >= standard.resistantMin && rawValue <= standard.resistantMax) {
-              interpretation = ResultInterpretation.RESISTANT
-            }
-          }
-          breakpointUsed = `${standard.year} ${standard.method}`
-        }
-      }
-
-      // Apply expert rules validation
-      const validationContext = {
-        microorganismId: labResult.microorganismId,
-        drugId: labResult.drugId,
-        testMethod: labResult.testMethod,
-        rawResult: labResult.rawResult,
-        interpretation: interpretation,
-        year: new Date().getFullYear()
-      }
-
-      const expertValidation = await this.expertRuleService.validateResult(validationContext)
-      const appliedRules = expertValidation.appliedRules.map(rule => rule.id)
-
-      // Update the lab result with validation results
-      const updateData: UpdateLabResultRequest = {
-        interpretation: interpretation,
-        breakpointUsed: breakpointUsed,
-        validationStatus: expertValidation.isValid ? ValidationStatus.VALIDATED : ValidationStatus.REQUIRES_REVIEW,
-        validationComments: expertValidation.messages.join('; '),
-        qualityControlPassed: expertValidation.isValid,
-        reportDate: new Date()
-      }
-
-      // Store applied expert rules as JSON
-      if (appliedRules.length > 0) {
-        await this.labResultRepository.update(labResultId, {
-          ...updateData,
-          // Note: We'll need to add expert_rule_applied field handling in the repository
-        })
-      } else {
-        await this.labResultRepository.update(labResultId, updateData)
-      }
-
-      return await this.getLabResultById(labResultId)
-    } catch (error) {
-      console.error('Auto-validation failed:', error)
-      // Mark as requiring manual review
-      await this.labResultRepository.update(labResultId, {
-        validationStatus: ValidationStatus.REQUIRES_REVIEW,
-        validationComments: `Auto-validation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
-      })
-      return await this.getLabResultById(labResultId)
-    }
+  async getLabResultsByDateRange(startDate: Date, endDate: Date): Promise<LabResultEntity[]> {
+    return await this.labResultRepository.findByDateRange(startDate, endDate)
   }
 
   async getPendingValidationResults(): Promise<LabResultEntity[]> {
@@ -189,36 +244,30 @@ export class LabResultService {
     return await this.labResultRepository.findByValidationStatus(ValidationStatus.REQUIRES_REVIEW)
   }
 
-  async getValidatedResults(): Promise<LabResultEntity[]> {
-    return await this.labResultRepository.findByValidationStatus(ValidationStatus.VALIDATED)
+  async getQualityControlFailures(): Promise<LabResultEntity[]> {
+    const allResults = await this.labResultRepository.findAll()
+    return allResults.filter(result => !result.qualityControlPassed)
   }
 
-  async bulkValidateResults(resultIds: string[], reviewedBy: string): Promise<{
-    successful: number
-    failed: number
-    errors: string[]
-  }> {
-    let successful = 0
-    let failed = 0
-    const errors: string[] = []
-
-    for (const resultId of resultIds) {
-      try {
-        await this.autoValidateResult(resultId)
-        
-        // Mark as reviewed
-        await this.labResultRepository.update(resultId, {
-          reviewedBy: reviewedBy,
-          validationStatus: ValidationStatus.VALIDATED
+  async bulkValidateResults(resultIds: string[], reviewedBy: string): Promise<LabResultServiceResult<number>> {
+    try {
+      let validatedCount = 0
+      
+      for (const id of resultIds) {
+        const result = await this.validateLabResult({
+          id,
+          validationStatus: ValidationStatus.VALIDATED,
+          reviewedBy
         })
         
-        successful++
-      } catch (error) {
-        failed++
-        errors.push(`Result ${resultId}: ${error instanceof Error ? error.message : 'Unknown error'}`)
+        if (result.success) {
+          validatedCount++
+        }
       }
-    }
 
-    return { successful, failed, errors }
+      return { success: true, data: validatedCount }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
   }
 }

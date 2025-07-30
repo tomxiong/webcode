@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2563eb">
+    <title>Dashboard - CLSI Platform</title>
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Mobile-optimized CSS -->
+    <link rel="stylesheet" href="/css/mobile-base.css">
+    <link rel="stylesheet" href="/css/dashboard-mobile.css">
+    
+    <!-- Touch-friendly icons -->
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
+</head>
+<body>
+    <!-- Page Header -->
+    <header class="page-header">
+        <h1 class="page-title">Dashboard</h1>
+        <button class="notifications-toggle" id="notificationsToggle" aria-label="Notifications">
+            <svg class="notification-icon" viewBox="0 0 24 24">
+                <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/>
+            </svg>
+            <span class="notification-badge" id="notificationBadge">3</span>
+        </button>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content" style="margin-top: 0; padding-top: var(--spacing-lg);">
+        <!-- Quick Stats Cards -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-icon samples-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value" id="totalSamples">-</div>
+                    <div class="stat-label">Total Samples</div>
+                    <div class="stat-change positive" id="samplesChange">+12%</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon results-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2h8c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value" id="totalResults">-</div>
+                    <div class="stat-label">Lab Results</div>
+                    <div class="stat-change positive" id="resultsChange">+8%</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon pending-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value" id="pendingValidation">-</div>
+                    <div class="stat-label">Pending Validation</div>
+                    <div class="stat-change negative" id="pendingChange">-5%</div>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon qc-icon">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                    </svg>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-value" id="qcPassRate">-</div>
+                    <div class="stat-label">QC Pass Rate</div>
+                    <div class="stat-change positive" id="qcChange">+2%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="section">
+            <h2 class="section-title">Quick Actions</h2>
+            <div class="quick-actions">
+                <a href="/mobile/samples.html?action=add" class="action-card">
+                    <div class="action-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+                        </svg>
+                    </div>
+                    <div class="action-content">
+                        <div class="action-title">Add Sample</div>
+                        <div class="action-description">Register new sample</div>
+                    </div>
+                </a>
+
+                <a href="/mobile/lab-results.html?action=add" class="action-card">
+                    <div class="action-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 2 2h8c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                        </svg>
+                    </div>
+                    <div class="action-content">
+                        <div class="action-title">Add Result</div>
+                        <div class="action-description">Enter lab result</div>
+                    </div>
+                </a>
+
+                <a href="/mobile/lab-results.html?filter=pending" class="action-card">
+                    <div class="action-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                        </svg>
+                    </div>
+                    <div class="action-content">
+                        <div class="action-title">Validate Results</div>
+                        <div class="action-description">Review pending results</div>
+                    </div>
+                </a>
+
+                <a href="/mobile/reports.html" class="action-card">
+                    <div class="action-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+                        </svg>
+                    </div>
+                    <div class="action-content">
+                        <div class="action-title">View Reports</div>
+                        <div class="action-description">Generate reports</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="section">
+            <h2 class="section-title">Recent Activity</h2>
+            <div class="activity-list" id="activityList">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <p>Loading recent activity...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alerts & Notifications -->
+        <div class="section">
+            <h2 class="section-title">Alerts</h2>
+            <div class="alerts-list" id="alertsList">
+                <!-- Alerts will be populated here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Notifications Panel -->
+    <div class="notifications-panel" id="notificationsPanel">
+        <div class="notifications-header">
+            <h3>Notifications</h3>
+            <button class="close-notifications" id="closeNotifications">×</button>
+        </div>
+        <div class="notifications-content" id="notificationsContent">
+            <!-- Notifications will be populated here -->
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Scripts -->
+    <script src="/js/mobile-base.js"></script>
+    <script src="/js/mobile-navigation.js"></script>
+    <script src="/js/dashboard-mobile.js"></script>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(registration => console.log('SW registered'))
+                .catch(error => console.log('SW registration failed'));
+        }
+    </script>
+</body>
+</html>

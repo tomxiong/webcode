@@ -1,0 +1,152 @@
+{
+  "name": "CLSI Management Platform",
+  "short_name": "CLSI Platform",
+  "description": "Clinical and Laboratory Standards Institute (CLSI) Standards and Expert Rules Management Platform",
+  "start_url": "/mobile/login.html",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#2563eb",
+  "background_color": "#f8fafc",
+  "scope": "/",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["medical", "productivity", "utilities"],
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-96x96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-128x128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-152x152.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-384x384.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/mobile-lab-results.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "platform": "narrow",
+      "label": "Lab Results Mobile View"
+    },
+    {
+      "src": "/screenshots/desktop-dashboard.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "platform": "wide",
+      "label": "Desktop Dashboard"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Dashboard",
+      "description": "View dashboard and overview",
+      "url": "/mobile/dashboard.html",
+      "icons": [
+        {
+          "src": "/icons/shortcut-dashboard.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Samples",
+      "short_name": "Samples",
+      "description": "Manage samples",
+      "url": "/mobile/samples.html",
+      "icons": [
+        {
+          "src": "/icons/shortcut-samples.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Lab Results",
+      "short_name": "Results",
+      "description": "View and manage lab results",
+      "url": "/mobile/lab-results.html",
+      "icons": [
+        {
+          "src": "/icons/shortcut-lab-results.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Add Sample",
+      "short_name": "Add Sample",
+      "description": "Register new sample",
+      "url": "/mobile/samples.html?action=add",
+      "icons": [
+        {
+          "src": "/icons/shortcut-add.png",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "short_name": "Users",
+      "description": "Manage users",
+      "url": "/mobile/users.html",
+      "icons": [
+        {
+          "src": "/icons/shortcut-users.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "handle_links": "preferred",
+  "capture_links": "existing-client-navigate"
+}

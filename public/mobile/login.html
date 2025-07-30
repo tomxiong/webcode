@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Login - CLSI Platform</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="CLSI Platform">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="/css/mobile-base.css">
+    <link rel="stylesheet" href="/css/login-mobile.css">
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="/manifest.json">
+</head>
+<body class="login-body">
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Signing in...</div>
+    </div>
+
+    <!-- Login Container -->
+    <div class="login-container">
+        <!-- Header -->
+        <div class="login-header">
+            <div class="logo-container">
+                <div class="logo">
+                    <svg viewBox="0 0 24 24" width="48" height="48">
+                        <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                </div>
+                <h1 class="app-title">CLSI Platform</h1>
+                <p class="app-subtitle">Clinical Laboratory Standards Management</p>
+            </div>
+        </div>
+
+        <!-- Login Form -->
+        <div class="login-form-container">
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="username" class="form-label">Username or Email</label>
+                    <div class="input-container">
+                        <svg class="input-icon" viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                        <input 
+                            type="text" 
+                            id="username" 
+                            name="username" 
+                            class="form-input" 
+                            placeholder="Enter your username or email"
+                            autocomplete="username"
+                            required
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="input-container">
+                        <svg class="input-icon" viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="currentColor" d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                        </svg>
+                        <input 
+                            type="password" 
+                            id="password" 
+                            name="password" 
+                            class="form-input" 
+                            placeholder="Enter your password"
+                            autocomplete="current-password"
+                            required
+                        >
+                        <button type="button" class="password-toggle" id="passwordToggle">
+                            <svg class="eye-icon" viewBox="0 0 24 24" width="20" height="20">
+                                <path fill="currentColor" d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="rememberMe" name="rememberMe">
+                        <span class="checkmark"></span>
+                        <span class="checkbox-label">Remember me</span>
+                    </label>
+                    <a href="#" class="forgot-password" id="forgotPassword">Forgot password?</a>
+                </div>
+
+                <button type="submit" class="login-button" id="loginButton">
+                    <span class="button-text">Sign In</span>
+                    <div class="button-spinner" style="display: none;">
+                        <div class="spinner"></div>
+                    </div>
+                </button>
+
+                <!-- Error Message -->
+                <div id="errorMessage" class="error-message" style="display: none;">
+                    <svg class="error-icon" viewBox="0 0 24 24" width="16" height="16">
+                        <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                    </svg>
+                    <span class="error-text"></span>
+                </div>
+
+                <!-- Success Message -->
+                <div id="successMessage" class="success-message" style="display: none;">
+                    <svg class="success-icon" viewBox="0 0 24 24" width="16" height="16">
+                        <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    <span class="success-text"></span>
+                </div>
+            </form>
+        </div>
+
+        <!-- Quick Login Options -->
+        <div class="quick-login">
+            <div class="divider">
+                <span class="divider-text">Quick Access</span>
+            </div>
+            <div class="quick-login-buttons">
+                <button class="quick-login-btn" data-role="admin">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/>
+                    </svg>
+                    Admin Demo
+                </button>
+                <button class="quick-login-btn" data-role="microbiologist">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="currentColor" d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7.01 5 5 7.01 5 9.5S7.01 14 9.5 14 14 11.99 14 9.5 11.99 5 9.5 5Z"/>
+                    </svg>
+                    Lab Tech Demo
+                </button>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="login-footer">
+            <p class="footer-text">
+                © 2024 CLSI Management Platform
+            </p>
+            <div class="footer-links">
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <span class="footer-separator">•</span>
+                <a href="#" class="footer-link">Terms of Service</a>
+                <span class="footer-separator">•</span>
+                <a href="#" class="footer-link">Help</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Offline Indicator -->
+    <div id="offlineIndicator" class="offline-indicator" style="display: none;">
+        <svg viewBox="0 0 24 24" width="16" height="16">
+            <path fill="currentColor" d="M23.64 7c-.45-.34-4.93-4-11.64-4-1.5 0-2.89.19-4.15.48L18.18 13.8 23.64 7zm-6.6 8.22L3.27 1.44 2 2.72l2.05 2.06C1.91 5.76.59 6.82.36 7l11.63 14.49.01.01.01-.01L16.17 17l1.42 1.42 1.27-1.27z"/>
+        </svg>
+        You're offline. Some features may be limited.
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/mobile-base.js"></script>
+    <script src="/js/login-mobile.js"></script>
+</body>
+</html>

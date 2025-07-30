@@ -1,6 +1,6 @@
 import { Database } from '../database/Database.js'
-import { LabResultRepository } from '../../domain/repositories/LabResultRepository.js'
-import { LabResult, LabResultEntity, CreateLabResultRequest, UpdateLabResultRequest, ValidationRequest, ValidationStatus, TestMethod, ResultInterpretation } from '../../domain/entities/LabResult.js'
+import { LabResultRepository, LabResultSearchCriteria } from '../../domain/repositories/LabResultRepository.js'
+import { LabResultEntity, ValidationStatus, TestMethod, SensitivityResult } from '../../domain/entities/LabResult.js'
 
 export class SqliteLabResultRepository implements LabResultRepository {
   constructor(private database: Database) {}
@@ -105,7 +105,7 @@ export class SqliteLabResultRepository implements LabResultRepository {
     return rows.map(row => this.mapRowToEntity(row))
   }
 
-  async save(labResult: CreateLabResultRequest): Promise<LabResultEntity> {
+  async save(labResult: LabResultEntity): Promise<LabResultEntity> {
     const id = `result_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
     const now = new Date()
     
@@ -119,21 +119,21 @@ export class SqliteLabResultRepository implements LabResultRepository {
     `
     
     await this.database.run(query, [
-      id,
+      labResult.id,
       labResult.sampleId,
       labResult.microorganismId,
       labResult.drugId,
       labResult.testMethod,
-      labResult.rawResult.toString(),
-      ResultInterpretation.NOT_TESTED, // Will be determined by validation
-      ValidationStatus.PENDING,
+      labResult.rawResult,
+      labResult.interpretation,
+      labResult.validationStatus,
       labResult.technician,
       labResult.testDate.toISOString(),
-      labResult.instrumentId || null,
-      false, // Will be set during validation
-      labResult.comments || null,
-      now.toISOString(),
-      now.toISOString()
+      labResult.instrumentId,
+      labResult.qualityControlPassed ? 1 : 0,
+      labResult.comments,
+      labResult.createdAt.toISOString(),
+      labResult.updatedAt.toISOString()
     ])
 
     const created = await this.findById(id)
@@ -143,78 +143,147 @@ export class SqliteLabResultRepository implements LabResultRepository {
     return created
   }
 
-  async update(id: string, labResult: UpdateLabResultRequest): Promise<LabResultEntity | null> {
+  async findByDrugId(drugId: string): Promise<LabResultEntity[]> {
+    const query = `
+      SELECT lr.*,
+             s.patient_id, s.sample_type, s.specimen_source,
+             m.genus as microorganism_genus, m.species as microorganism_species,
+             d.name as drug_name, d.code as drug_code, d.category as drug_category
+      FROM lab_results lr
+      LEFT JOIN samples s ON lr.sample_id = s.id
+      LEFT JOIN microorganisms m ON lr.microorganism_id = m.id
+      LEFT JOIN drugs d ON lr.drug_id = d.id
+      WHERE lr.drug_id = ?
+      ORDER BY lr.created_at DESC
+    `
+    const rows = await this.database.all(query, [drugId])
+    return rows.map(row => this.mapRowToEntity(row))
+  }
+
+  async search(criteria: LabResultSearchCriteria): Promise<LabResultEntity[]> {
+    let query = `
+      SELECT lr.*,
+             s.patient_id, s.sample_type, s.specimen_source,
+             m.genus as microorganism_genus, m.species as microorganism_species,
+             d.name as drug_name, d.code as drug_code, d.category as drug_category
+      FROM lab_results lr
+      LEFT JOIN samples s ON lr.sample_id = s.id
+      LEFT JOIN microorganisms m ON lr.microorganism_id = m.id
+      LEFT JOIN drugs d ON lr.drug_id = d.id
+      WHERE 1=1
+    `
+    const params: any[] = []
+
+    if (criteria.sampleId) {
+      query += ' AND lr.sample_id = ?'
+      params.push(criteria.sampleId)
+    }
+    if (criteria.microorganismId) {
+      query += ' AND lr.microorganism_id = ?'
+      params.push(criteria.microorganismId)
+    }
+    if (criteria.drugId) {
+      query += ' AND lr.drug_id = ?'
+      params.push(criteria.drugId)
+    }
+    if (criteria.testMethod) {
+      query += ' AND lr.test_method = ?'
+      params.push(criteria.testMethod)
+    }
+    if (criteria.interpretation) {
+      query += ' AND lr.interpretation = ?'
+      params.push(criteria.interpretation)
+    }
+    if (criteria.validationStatus) {
+      query += ' AND lr.validation_status = ?'
+      params.push(criteria.validationStatus)
+    }
+    if (criteria.technician) {
+      query += ' AND lr.technician = ?'
+      params.push(criteria.technician)
+    }
+    if (criteria.reviewedBy) {
+      query += ' AND lr.reviewed_by = ?'
+      params.push(criteria.reviewedBy)
+    }
+    if (criteria.startDate) {
+      query += ' AND lr.test_date >= ?'
+      params.push(criteria.startDate.toISOString())
+    }
+    if (criteria.endDate) {
+      query += ' AND lr.test_date <= ?'
+      params.push(criteria.endDate.toISOString())
+    }
+    if (criteria.qualityControlPassed !== undefined) {
+      query += ' AND lr.quality_control_passed = ?'
+      params.push(criteria.qualityControlPassed ? 1 : 0)
+    }
+
+    query += ' ORDER BY lr.created_at DESC'
+
+    if (criteria.limit) {
+      query += ' LIMIT ?'
+      params.push(criteria.limit)
+    }
+    if (criteria.offset) {
+      query += ' OFFSET ?'
+      params.push(criteria.offset)
+    }
+
+    const rows = await this.database.all(query, params)
+    return rows.map(row => this.mapRowToEntity(row))
+  }
+
+  async count(): Promise<number> {
+    const query = 'SELECT COUNT(*) as count FROM lab_results'
+    const result = await this.database.get<{count: number}>(query)
+    return result?.count || 0
+  }
+
+  async update(id: string, labResult: LabResultEntity): Promise<LabResultEntity> {
     const existing = await this.findById(id)
     if (!existing) {
-      return null
+      throw new Error('Lab result not found')
     }
 
-    const updates: string[] = []
-    const values: any[] = []
+    const query = `
+      UPDATE lab_results SET 
+        raw_result = ?,
+        interpretation = ?,
+        breakpoint_used = ?,
+        expert_rule_applied = ?,
+        validation_status = ?,
+        validation_comments = ?,
+        reviewed_by = ?,
+        report_date = ?,
+        quality_control_passed = ?,
+        comments = ?,
+        updated_at = ?
+      WHERE id = ?
+    `
+    
+    await this.database.run(query, [
+      labResult.rawResult,
+      labResult.interpretation,
+      labResult.breakpointUsed,
+      labResult.expertRuleApplied,
+      labResult.validationStatus,
+      labResult.validationComments,
+      labResult.reviewedBy,
+      labResult.reportDate ? labResult.reportDate.toISOString() : null,
+      labResult.qualityControlPassed ? 1 : 0,
+      labResult.comments,
+      labResult.updatedAt.toISOString(),
+      id
+    ])
 
-    if (labResult.testMethod !== undefined) {
-      updates.push('test_method = ?')
-      values.push(labResult.testMethod)
+    const updated = await this.findById(id)
+    if (!updated) {
+      throw new Error('Failed to update lab result')
     }
-    if (labResult.rawResult !== undefined) {
-      updates.push('raw_result = ?')
-      values.push(labResult.rawResult.toString())
-    }
-    if (labResult.interpretation !== undefined) {
-      updates.push('interpretation = ?')
-      values.push(labResult.interpretation)
-    }
-    if (labResult.validationStatus !== undefined) {
-      updates.push('validation_status = ?')
-      values.push(labResult.validationStatus)
-    }
-    if (labResult.validationComments !== undefined) {
-      updates.push('validation_comments = ?')
-      values.push(labResult.validationComments)
-    }
-    if (labResult.reviewedBy !== undefined) {
-      updates.push('reviewed_by = ?')
-      values.push(labResult.reviewedBy)
-    }
-    if (labResult.reportDate !== undefined) {
-      updates.push('report_date = ?')
-      values.push(labResult.reportDate.toISOString())
-    }
-    if (labResult.qualityControlPassed !== undefined) {
-      updates.push('quality_control_passed = ?')
-      values.push(labResult.qualityControlPassed ? 1 : 0)
-    }
-    if (labResult.comments !== undefined) {
-      updates.push('comments = ?')
-      values.push(labResult.comments)
-    }
-
-    if (updates.length === 0) {
-      return existing
-    }
-
-    updates.push('updated_at = ?')
-    values.push(new Date().toISOString())
-    values.push(id)
-
-    const query = `UPDATE lab_results SET ${updates.join(', ')} WHERE id = ?`
-    await this.database.run(query, values)
-
-    return await this.findById(id)
+    return updated
   }
 
-  async validate(validation: ValidationRequest): Promise<LabResultEntity | null> {
-    const updateData: UpdateLabResultRequest = {
-      interpretation: validation.interpretation,
-      validationStatus: ValidationStatus.VALIDATED,
-      validationComments: validation.validationComments,
-      reviewedBy: validation.reviewedBy,
-      reportDate: new Date(),
-      qualityControlPassed: true
-    }
-
-    return await this.update(validation.labResultId, updateData)
-  }
 
   async delete(id: string): Promise<boolean> {
     const query = 'DELETE FROM lab_results WHERE id = ?'
@@ -222,86 +291,29 @@ export class SqliteLabResultRepository implements LabResultRepository {
     return result.changes > 0
   }
 
-  async getStatistics(): Promise<{
-    totalResults: number
-    resultsByMethod: Record<string, number>
-    resultsByInterpretation: Record<string, number>
-    validationStats: Record<string, number>
-    qualityControlStats: {
-      passed: number
-      failed: number
-      percentage: number
-    }
-  }> {
-    const totalQuery = 'SELECT COUNT(*) as count FROM lab_results'
-    const totalResult = await this.database.get(totalQuery)
-    
-    const methodQuery = 'SELECT test_method, COUNT(*) as count FROM lab_results GROUP BY test_method'
-    const methodResults = await this.database.all(methodQuery)
-    
-    const interpretationQuery = 'SELECT interpretation, COUNT(*) as count FROM lab_results GROUP BY interpretation'
-    const interpretationResults = await this.database.all(interpretationQuery)
-    
-    const validationQuery = 'SELECT validation_status, COUNT(*) as count FROM lab_results GROUP BY validation_status'
-    const validationResults = await this.database.all(validationQuery)
-    
-    const qcQuery = `
-      SELECT 
-        SUM(CASE WHEN quality_control_passed = 1 THEN 1 ELSE 0 END) as passed,
-        SUM(CASE WHEN quality_control_passed = 0 THEN 1 ELSE 0 END) as failed,
-        COUNT(*) as total
-      FROM lab_results
-    `
-    const qcResult = await this.database.get(qcQuery)
-
-    const qcPassed = qcResult.passed || 0
-    const qcFailed = qcResult.failed || 0
-    const qcTotal = qcResult.total || 1
-
-    return {
-      totalResults: totalResult.count,
-      resultsByMethod: methodResults.reduce((acc: any, row: any) => {
-        acc[row.test_method] = row.count
-        return acc
-      }, {}),
-      resultsByInterpretation: interpretationResults.reduce((acc: any, row: any) => {
-        acc[row.interpretation] = row.count
-        return acc
-      }, {}),
-      validationStats: validationResults.reduce((acc: any, row: any) => {
-        acc[row.validation_status] = row.count
-        return acc
-      }, {}),
-      qualityControlStats: {
-        passed: qcPassed,
-        failed: qcFailed,
-        percentage: Math.round((qcPassed / qcTotal) * 100)
-      }
-    }
-  }
 
   private mapRowToEntity(row: any): LabResultEntity {
-    return {
-      id: row.id,
-      sampleId: row.sample_id,
-      microorganismId: row.microorganism_id,
-      drugId: row.drug_id,
-      testMethod: row.test_method as TestMethod,
-      rawResult: row.raw_result,
-      interpretation: row.interpretation as ResultInterpretation,
-      breakpointUsed: row.breakpoint_used,
-      expertRuleApplied: row.expert_rule_applied ? JSON.parse(row.expert_rule_applied) : undefined,
-      validationStatus: row.validation_status as ValidationStatus,
-      validationComments: row.validation_comments,
-      technician: row.technician,
-      reviewedBy: row.reviewed_by,
-      testDate: new Date(row.test_date),
-      reportDate: row.report_date ? new Date(row.report_date) : undefined,
-      instrumentId: row.instrument_id,
-      qualityControlPassed: Boolean(row.quality_control_passed),
-      comments: row.comments,
-      createdAt: new Date(row.created_at),
-      updatedAt: new Date(row.updated_at)
-    }
+    return new LabResultEntity(
+      row.id,
+      row.sample_id,
+      row.microorganism_id,
+      row.drug_id,
+      row.test_method as TestMethod,
+      row.raw_result,
+      row.interpretation as SensitivityResult,
+      row.breakpoint_used,
+      row.expert_rule_applied || '[]',
+      row.validation_status as ValidationStatus,
+      row.validation_comments,
+      row.technician,
+      row.reviewed_by,
+      new Date(row.test_date),
+      row.report_date ? new Date(row.report_date) : null,
+      row.instrument_id,
+      Boolean(row.quality_control_passed),
+      row.comments,
+      new Date(row.created_at),
+      new Date(row.updated_at)
+    )
   }
 }

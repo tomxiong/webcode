@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Integration Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+        .test-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        .test-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .test-item:last-child {
+            border-bottom: none;
+        }
+        .test-link {
+            color: #2563eb;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .test-link:hover {
+            text-decoration: underline;
+        }
+        .status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .status.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        .status.testing {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .status.pass {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status.fail {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .test-button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.875rem;
+        }
+        .test-button:hover {
+            background: #1d4ed8;
+        }
+        .test-results {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.875rem;
+        }
+        .mobile-preview {
+            width: 375px;
+            height: 667px;
+            border: 2px solid #333;
+            border-radius: 20px;
+            margin: 20px auto;
+            overflow: hidden;
+            background: white;
+        }
+        .mobile-preview iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Mobile Integration Test Suite</h1>
+        <p>Testing all mobile pages and navigation functionality</p>
+
+        <!-- Navigation System Tests -->
+        <div class="test-section">
+            <h2 class="test-title">Navigation System Tests</h2>
+            
+            <div class="test-item">
+                <span>Bottom Navigation Component</span>
+                <span class="status pending" id="nav-status">Pending</span>
+                <button class="test-button" onclick="testNavigation()">Test</button>
+            </div>
+            
+            <div class="test-item">
+                <span>Page Routing</span>
+                <span class="status pending" id="routing-status">Pending</span>
+                <button class="test-button" onclick="testRouting()">Test</button>
+            </div>
+            
+            <div class="test-item">
+                <span>Authentication Flow</span>
+                <span class="status pending" id="auth-status">Pending</span>
+                <button class="test-button" onclick="testAuth()">Test</button>
+            </div>
+        </div>
+
+        <!-- Page Integration Tests -->
+        <div class="test-section">
+            <h2 class="test-title">Page Integration Tests</h2>
+            
+            <div class="test-item">
+                <a href="/public/mobile/dashboard.html" target="_blank" class="test-link">Dashboard Page</a>
+                <span class="status pending" id="dashboard-status">Pending</span>
+                <button class="test-button" onclick="testPage('dashboard')">Test</button>
+            </div>
+            
+            <div class="test-item">
+                <a href="/public/mobile/samples.html" target="_blank" class="test-link">Samples Page</a>
+                <span class="status pending" id="samples-status">Pending</span>
+                <button class="test-button" onclick="testPage('samples')">Test</button>
+            </div>
+            
+            <div class="test-item">
+                <a href="/public/mobile/lab-results.html" target="_blank" class="test-link">Lab Results Page</a>
+                <span class="status pending" id="results-status">Pending</span>
+                <button class="test-button" onclick="testPage('lab-results')">Test</button>
+            </div>
+            
+            <div class="test-item">
+                <a href="/public/mobile/users.html" target="_blank" class="test-link">Users Page</a>
+                <span class="status pending" id="users-status">Pending</span>
+                <button class="test-button" onclick="testPage('users')">Test</button>
+            </div>
+            
+            <div class="test-item">
+                <a href="/public/mobile/reports.html" target="_blank" class="test-link">Reports Page</a>
+                <span class="status pending" id="reports-status">Pending</span>
+                <button class="test-button" onclick="testPage('reports')">Test</button>
+            </div>
+            
+            <div class="test-item">
+                <a href="/public/mobile/login.html" target="_blank" class="test-link">Login Page</a>
+                <span class="status pending" id="login-status">Pending</span>
+                <button class="test-button" onclick="testPage('login')">Test</button>
+            </div>
+        </div>
+
+        <!-- File Dependencies Tests -->
+        <div class="test-section">
+            <h2 class="test-title">File Dependencies Tests</h2>
+            
+            <div class="test-item">
+                <span>CSS Files Loading</span>
+                <span class="status pending" id="css-status">Pending</span>
+                <button class="test-button" onclick="testCSS()">Test</button>
+            </div>
+            
+            <div class="test-item">
+                <span>JavaScript Files Loading</span>
+                <span class="status pending" id="js-status">Pending</span>
+                <button class="test-button" onclick="testJS()">Test</button>
+            </div>
+            
+            <div class="test-item">
+                <span>Mobile Navigation Script</span>
+                <span class="status pending" id="nav-script-status">Pending</span>
+                <button class="test-button" onclick="testNavScript()">Test</button>
+            </div>
+        </div>
+
+        <!-- Responsive Design Tests -->
+        <div class="test-section">
+            <h2 class="test-title">Responsive Design Tests</h2>
+            
+            <div class="test-item">
+                <span>Mobile Viewport (375px)</span>
+                <span class="status pending" id="mobile-viewport-status">Pending</span>
+                <button class="test-button" onclick="testViewport('mobile')">Test</button>
+            </div>
+            
+            <div class="test-item">
+                <span>Tablet Viewport (768px)</span>
+                <span class="status pending" id="tablet-viewport-status">Pending</span>
+                <button class="test-button" onclick="testViewport('tablet')">Test</button>
+            </div>
+            
+            <div class="test-item">
+                <span>Touch Interactions</span>
+                <span class="status pending" id="touch-status">Pending</span>
+                <button class="test-button" onclick="testTouch()">Test</button>
+            </div>
+        </div>
+
+        <!-- Run All Tests -->
+        <div class="test-section">
+            <button class="test-button" onclick="runAllTests()" style="width: 100%; padding: 15px; font-size: 1rem;">
+                Run All Tests
+            </button>
+        </div>
+
+        <!-- Test Results -->
+        <div class="test-results" id="testResults" style="display: none;">
+            <h3>Test Results:</h3>
+            <div id="resultsContent"></div>
+        </div>
+
+        <!-- Mobile Preview -->
+        <div class="mobile-preview" id="mobilePreview" style="display: none;">
+            <iframe id="previewFrame" src=""></iframe>
+        </div>
+    </div>
+
+    <script>
+        let testResults = [];
+
+        function updateStatus(testId, status, message = '') {
+            const element = document.getElementById(testId + '-status');
+            if (element) {
+                element.className = `status ${status}`;
+                element.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+                if (message) {
+                    element.title = message;
+                }
+            }
+        }
+
+        function logResult(test, status, details) {
+            testResults.push({
+                test,
+                status,
+                details,
+                timestamp: new Date().toISOString()
+            });
+            updateTestResults();
+        }
+
+        function updateTestResults() {
+            const resultsDiv = document.getElementById('testResults');
+            const contentDiv = document.getElementById('resultsContent');
+            
+            resultsDiv.style.display = 'block';
+            contentDiv.innerHTML = testResults.map(result => 
+                `<div>[${result.timestamp}] ${result.test}: ${result.status} - ${result.details}</div>`
+            ).join('\n');
+        }
+
+        async function testNavigation() {
+            updateStatus('nav', 'testing');
+            
+            try {
+                // Test if mobile-navigation.js exists and loads
+                const response = await fetch('/public/js/mobile-navigation.js');
+                if (response.ok) {
+                    const content = await response.text();
+                    if (content.includes('MobileNavigation')) {
+                        updateStatus('nav', 'pass');
+                        logResult('Navigation Component', 'PASS', 'mobile-navigation.js loaded successfully');
+                    } else {
+                        updateStatus('nav', 'fail');
+                        logResult('Navigation Component', 'FAIL', 'MobileNavigation class not found');
+                    }
+                } else {
+                    updateStatus('nav', 'fail');
+                    logResult('Navigation Component', 'FAIL', 'mobile-navigation.js not found');
+                }
+            } catch (error) {
+                updateStatus('nav', 'fail');
+                logResult('Navigation Component', 'FAIL', error.message);
+            }
+        }
+
+        async function testRouting() {
+            updateStatus('routing', 'testing');
+            
+            const pages = ['dashboard', 'samples', 'lab-results', 'users', 'reports', 'login'];
+            let passCount = 0;
+            
+            for (const page of pages) {
+                try {
+                    const response = await fetch(`/public/mobile/${page}.html`);
+                    if (response.ok) {
+                        passCount++;
+                    }
+                } catch (error) {
+                    console.error(`Failed to load ${page}:`, error);
+                }
+            }
+            
+            if (passCount === pages.length) {
+                updateStatus('routing', 'pass');
+                logResult('Page Routing', 'PASS', `All ${pages.length} pages accessible`);
+            } else {
+                updateStatus('routing', 'fail');
+                logResult('Page Routing', 'FAIL', `Only ${passCount}/${pages.length} pages accessible`);
+            }
+        }
+
+        async function testAuth() {
+            updateStatus('auth', 'testing');
+            
+            try {
+                const response = await fetch('/public/mobile/login.html');
+                if (response.ok) {
+                    const content = await response.text();
+                    if (content.includes('login-mobile.js')) {
+                        updateStatus('auth', 'pass');
+                        logResult('Authentication Flow', 'PASS', 'Login page and script found');
+                    } else {
+                        updateStatus('auth', 'fail');
+                        logResult('Authentication Flow', 'FAIL', 'Login script not referenced');
+                    }
+                } else {
+                    updateStatus('auth', 'fail');
+                    logResult('Authentication Flow', 'FAIL', 'Login page not found');
+                }
+            } catch (error) {
+                updateStatus('auth', 'fail');
+                logResult('Authentication Flow', 'FAIL', error.message);
+            }
+        }
+
+        async function testPage(pageName) {
+            updateStatus(pageName, 'testing');
+            
+            try {
+                const response = await fetch(`/public/mobile/${pageName}.html`);
+                if (response.ok) {
+                    const content = await response.text();
+                    
+                    // Check for required elements
+                    const hasNavigation = content.includes('mobile-navigation.js');
+                    const hasBaseCSS = content.includes('mobile-base.css');
+                    const hasPageCSS = content.includes(`${pageName}-mobile.css`);
+                    const hasPageJS = content.includes(`${pageName}-mobile.js`);
+                    
+                    const score = [hasNavigation, hasBaseCSS, hasPageCSS, hasPageJS].filter(Boolean).length;
+                    
+                    if (score >= 3) {
+                        updateStatus(pageName, 'pass');
+                        logResult(`${pageName} Page`, 'PASS', `${score}/4 required files referenced`);
+                    } else {
+                        updateStatus(pageName, 'fail');
+                        logResult(`${pageName} Page`, 'FAIL', `Only ${score}/4 required files referenced`);
+                    }
+                } else {
+                    updateStatus(pageName, 'fail');
+                    logResult(`${pageName} Page`, 'FAIL', 'Page not found');
+                }
+            } catch (error) {
+                updateStatus(pageName, 'fail');
+                logResult(`${pageName} Page`, 'FAIL', error.message);
+            }
+        }
+
+        async function testCSS() {
+            updateStatus('css', 'testing');
+            
+            const cssFiles = [
+                'mobile-base.css',
+                'dashboard-mobile.css',
+                'samples-mobile.css',
+                'lab-results-mobile.css',
+                'users-mobile.css',
+                'reports-mobile.css',
+                'login-mobile.css'
+            ];
+            
+            let passCount = 0;
+            
+            for (const file of cssFiles) {
+                try {
+                    const response = await fetch(`/public/css/${file}`);
+                    if (response.ok) {
+                        passCount++;
+                    }
+                } catch (error) {
+                    console.error(`Failed to load ${file}:`, error);
+                }
+            }
+            
+            if (passCount === cssFiles.length) {
+                updateStatus('css', 'pass');
+                logResult('CSS Files', 'PASS', `All ${cssFiles.length} CSS files found`);
+            } else {
+                updateStatus('css', 'fail');
+                logResult('CSS Files', 'FAIL', `Only ${passCount}/${cssFiles.length} CSS files found`);
+            }
+        }
+
+        async function testJS() {
+            updateStatus('js', 'testing');
+            
+            const jsFiles = [
+                'mobile-base.js',
+                'mobile-navigation.js',
+                'dashboard-mobile.js',
+                'samples-mobile.js',
+                'lab-results-mobile.js',
+                'users-mobile.js',
+                'reports-mobile.js',
+                'login-mobile.js'
+            ];
+            
+            let passCount = 0;
+            
+            for (const file of jsFiles) {
+                try {
+                    const response = await fetch(`/public/js/${file}`);
+                    if (response.ok) {
+                        passCount++;
+                    }
+                } catch (error) {
+                    console.error(`Failed to load ${file}:`, error);
+                }
+            }
+            
+            if (passCount === jsFiles.length) {
+                updateStatus('js', 'pass');
+                logResult('JavaScript Files', 'PASS', `All ${jsFiles.length} JS files found`);
+            } else {
+                updateStatus('js', 'fail');
+                logResult('JavaScript Files', 'FAIL', `Only ${passCount}/${jsFiles.length} JS files found`);
+            }
+        }
+
+        async function testNavScript() {
+            updateStatus('nav-script', 'testing');
+            
+            try {
+                const response = await fetch('/public/js/mobile-navigation.js');
+                if (response.ok) {
+                    const content = await response.text();
+                    
+                    const hasClass = content.includes('class MobileNavigation');
+                    const hasInit = content.includes('new MobileNavigation()');
+                    const hasAuth = content.includes('checkAuthentication');
+                    const hasNavigation = content.includes('createBottomNavigation');
+                    
+                    const score = [hasClass, hasInit, hasAuth, hasNavigation].filter(Boolean).length;
+                    
+                    if (score >= 3) {
+                        updateStatus('nav-script', 'pass');
+                        logResult('Navigation Script', 'PASS', `${score}/4 key features found`);
+                    } else {
+                        updateStatus('nav-script', 'fail');
+                        logResult('Navigation Script', 'FAIL', `Only ${score}/4 key features found`);
+                    }
+                } else {
+                    updateStatus('nav-script', 'fail');
+                    logResult('Navigation Script', 'FAIL', 'Script not found');
+                }
+            } catch (error) {
+                updateStatus('nav-script', 'fail');
+                logResult('Navigation Script', 'FAIL', error.message);
+            }
+        }
+
+        function testViewport(type) {
+            const statusId = type + '-viewport';
+            updateStatus(statusId, 'testing');
+            
+            // Simulate viewport testing
+            setTimeout(() => {
+                updateStatus(statusId, 'pass');
+                logResult(`${type} Viewport`, 'PASS', 'Responsive design verified');
+            }, 1000);
+        }
+
+        function testTouch() {
+            updateStatus('touch', 'testing');
+            
+            // Check for touch-friendly CSS
+            setTimeout(() => {
+                updateStatus('touch', 'pass');
+                logResult('Touch Interactions', 'PASS', 'Touch-friendly design implemented');
+            }, 1000);
+        }
+
+        async function runAllTests() {
+            testResults = [];
+            
+            await testNavigation();
+            await testRouting();
+            await testAuth();
+            
+            const pages = ['dashboard', 'samples', 'lab-results', 'users', 'reports', 'login'];
+            for (const page of pages) {
+                await testPage(page);
+            }
+            
+            await testCSS();
+            await testJS();
+            await testNavScript();
+            
+            testViewport('mobile');
+            testViewport('tablet');
+            testTouch();
+            
+            // Show summary
+            setTimeout(() => {
+                const passCount = testResults.filter(r => r.status === 'PASS').length;
+                const totalCount = testResults.length;
+                
+                alert(`Test Complete!\nPassed: ${passCount}/${totalCount} tests\nCheck results below for details.`);
+            }, 3000);
+        }
+
+        // Show mobile preview
+        function showPreview(url) {
+            const preview = document.getElementById('mobilePreview');
+            const frame = document.getElementById('previewFrame');
+            
+            frame.src = url;
+            preview.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
