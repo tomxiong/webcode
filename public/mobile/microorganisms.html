@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microorganisms - CLSI Platform</title>
+    <link rel="stylesheet" href="../css/mobile-base.css">
+    <link rel="stylesheet" href="../css/microorganisms-mobile.css">
+    <link rel="manifest" href="../manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <link rel="apple-touch-icon" href="../icons/icon-192x192.png">
+</head>
+<body>
+    <div class="mobile-container">
+        <!-- Header -->
+        <header class="mobile-header">
+            <div class="header-content">
+                <h1 class="page-title">Microorganisms</h1>
+                <div class="header-actions">
+                    <button class="header-btn" id="searchToggle">
+                        <svg viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="currentColor" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                        </svg>
+                    </button>
+                    <button class="header-btn" id="filterToggle">
+                        <svg viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="currentColor" d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z"/>
+                        </svg>
+                    </button>
+                    <button class="header-btn" id="treeViewToggle">
+                        <svg viewBox="0 0 24 24" width="20" height="20">
+                            <path fill="currentColor" d="M3 3v18h18V3H3zm16 16H5V5h14v14zM11 7h6v2h-6V7zm0 4h6v2h-6v-2z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Search Bar -->
+            <div class="search-container" id="searchContainer">
+                <div class="search-input-wrapper">
+                    <svg class="search-icon" viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="currentColor" d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                    <input type="text" id="searchInput" placeholder="Search microorganisms..." class="search-input">
+                    <button class="search-clear" id="searchClear">
+                        <svg viewBox="0 0 24 24" width="16" height="16">
+                            <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Filter Panel -->
+        <div class="filter-panel" id="filterPanel">
+            <div class="filter-section">
+                <div class="filter-title">Classification Level</div>
+                <div class="filter-chips">
+                    <button class="filter-chip active" data-filter="all">All</button>
+                    <button class="filter-chip" data-filter="genus">Genus</button>
+                    <button class="filter-chip" data-filter="species">Species</button>
+                    <button class="filter-chip" data-filter="subspecies">Subspecies</button>
+                </div>
+            </div>
+            
+            <div class="filter-section">
+                <div class="filter-title">Gram Stain</div>
+                <div class="filter-chips">
+                    <button class="filter-chip active" data-gram="all">All</button>
+                    <button class="filter-chip" data-gram="positive">Positive</button>
+                    <button class="filter-chip" data-gram="negative">Negative</button>
+                    <button class="filter-chip" data-gram="variable">Variable</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- View Toggle -->
+        <div class="view-toggle-section">
+            <div class="view-toggle">
+                <button class="view-toggle-btn active" data-view="list">
+                    <svg viewBox="0 0 24 24" width="16" height="16">
+                        <path fill="currentColor" d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
+                    </svg>
+                    List
+                </button>
+                <button class="view-toggle-btn" data-view="tree">
+                    <svg viewBox="0 0 24 24" width="16" height="16">
+                        <path fill="currentColor" d="M22 11V3h-7v3H9V3H2v8h7V8h2v10h4v3h7v-8h-7v3h-2V8h2v3h7z"/>
+                    </svg>
+                    Tree
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Loading State -->
+            <div class="loading-container" id="loadingContainer">
+                <div class="loading-spinner"></div>
+                <div class="loading-text">Loading microorganisms...</div>
+            </div>
+
+            <!-- List View -->
+            <div class="microorganisms-list" id="microorganismsList">
+                <!-- Microorganisms will be populated by JavaScript -->
+            </div>
+
+            <!-- Tree View -->
+            <div class="microorganisms-tree" id="microorganismsTree" style="display: none;">
+                <!-- Tree structure will be populated by JavaScript -->
+            </div>
+
+            <!-- Empty State -->
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <div class="empty-icon">🔬</div>
+                <div class="empty-title">No Microorganisms Found</div>
+                <div class="empty-message">Try adjusting your search or filter criteria</div>
+            </div>
+        </main>
+
+        <!-- Floating Action Button -->
+        <button class="fab" id="addMicroorganismFab">
+            <svg viewBox="0 0 24 24" width="24" height="24">
+                <path fill="currentColor" d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Microorganism Details Bottom Sheet -->
+    <div class="bottom-sheet-overlay" id="microorganismDetailsOverlay">
+        <div class="bottom-sheet" id="microorganismDetailsSheet">
+            <div class="bottom-sheet-header">
+                <div class="bottom-sheet-handle"></div>
+                <div class="bottom-sheet-title">Microorganism Details</div>
+                <button class="bottom-sheet-close" id="closeMicroorganismDetails">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="currentColor" d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="bottom-sheet-content" id="microorganismDetailsContent">
+                <!-- Microorganism details will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <script src="../js/mobile-base.js"></script>
+    <script src="../js/microorganisms-mobile.js"></script>
+</body>
+</html>

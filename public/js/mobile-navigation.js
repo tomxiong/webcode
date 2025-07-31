@@ -340,6 +340,34 @@ class MobileNavigation {
             Lab Results
           </a>
           
+          <a href="/mobile/expert-rules.html" class="nav-menu-item">
+            <svg viewBox="0 0 24 24">
+              <path fill="currentColor" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+            Expert Rules
+          </a>
+          
+          <a href="/mobile/drugs.html" class="nav-menu-item">
+            <svg viewBox="0 0 24 24">
+              <path fill="currentColor" d="M7 2v2h1v14a4 4 0 0 0 4 4 4 4 0 0 0 4-4V4h1V2H7M9 4h6v14a2 2 0 0 1-2 2 2 2 0 0 1-2-2V4Z"/>
+            </svg>
+            Drugs
+          </a>
+          
+          <a href="/mobile/microorganisms.html" class="nav-menu-item">
+            <svg viewBox="0 0 24 24">
+              <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+            </svg>
+            Microorganisms
+          </a>
+          
+          <a href="/mobile/breakpoint-standards.html" class="nav-menu-item">
+            <svg viewBox="0 0 24 24">
+              <path fill="currentColor" d="M9 11H7v6h2v-6zm4 0h-2v6h2v-6zm4 0h-2v6h2v-6zM4 4v2h16V4H4zm0 16h16v2H4v-2z"/>
+            </svg>
+            Breakpoint Standards
+          </a>
+          
           <a href="/mobile/users.html" class="nav-menu-item">
             <svg viewBox="0 0 24 24">
               <path fill="currentColor" d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2M4 18v-6h3v-2c0-1.1.9-2 2-2h3.5c1.1 0 2 .9 2 2v2H18v6H4Z"/>

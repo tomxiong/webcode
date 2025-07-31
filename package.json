@@ -22,7 +22,10 @@
     "test:e2e": "vitest run src/tests/e2e",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "test:mobile-navigation": "tsx src/tests/run-mobile-navigation-tests.ts",
+    "test:pagination": "tsx src/tests/run-pagination-tests.ts",
+    "coverage": "tsx src/tests/coverage-report.ts"
   },
   "keywords": [
     "clsi",
@@ -45,12 +48,15 @@
     "uuid": "^11.1.0"
   },
   "devDependencies": {
+    "@types/jsdom": "^21.1.7",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.7.4",
     "@types/node-fetch": "^2.6.11",
     "@types/sqlite3": "^3.1.11",
+    "@vitest/coverage-v8": "^3.2.4",
     "@vitest/ui": "^3.2.4",
     "c8": "^10.1.3",
+    "jsdom": "^25.0.1",
     "vitest": "^3.2.4"
   }
 }

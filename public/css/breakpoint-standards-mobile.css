@@ -1,0 +1,686 @@
+/* Breakpoint Standards Mobile Styles */
+
+/* Year Selector Section */
+.year-selector-section {
+  padding: var(--spacing-md);
+  background: var(--surface-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.year-selector {
+  display: flex;
+  gap: var(--spacing-sm);
+  overflow-x: auto;
+  padding-bottom: var(--spacing-xs);
+}
+
+.year-btn {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  background: var(--background-color);
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  min-width: 60px;
+  text-align: center;
+}
+
+.year-btn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.year-btn.active {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+/* Breakpoints List */
+.breakpoints-list {
+  padding: var(--spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.breakpoint-card {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.breakpoint-card:hover {
+  border-color: var(--primary-color);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.breakpoint-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--spacing-sm);
+  gap: var(--spacing-sm);
+}
+
+.breakpoint-organism {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.4;
+  flex: 1;
+}
+
+.breakpoint-method {
+  background: var(--primary-color-light);
+  color: var(--primary-color);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.breakpoint-method.disk {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.breakpoint-method.mic {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.breakpoint-method.etest {
+  background: #fce7f3;
+  color: #e11d48;
+}
+
+.breakpoint-content {
+  margin-bottom: var(--spacing-sm);
+}
+
+.breakpoint-drug {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-xs);
+  font-weight: 500;
+}
+
+.breakpoint-values {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.breakpoint-value {
+  background: var(--background-color);
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  text-align: center;
+  border: 1px solid var(--border-color);
+}
+
+.breakpoint-value-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-xs);
+  font-weight: 500;
+}
+
+.breakpoint-value-number {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: 'Courier New', monospace;
+}
+
+.breakpoint-value.susceptible {
+  border-color: #16a34a;
+  background: #dcfce7;
+}
+
+.breakpoint-value.susceptible .breakpoint-value-number {
+  color: #16a34a;
+}
+
+.breakpoint-value.intermediate {
+  border-color: #d97706;
+  background: #fef3c7;
+}
+
+.breakpoint-value.intermediate .breakpoint-value-number {
+  color: #d97706;
+}
+
+.breakpoint-value.resistant {
+  border-color: #e11d48;
+  background: #fce7f3;
+}
+
+.breakpoint-value.resistant .breakpoint-value-number {
+  color: #e11d48;
+}
+
+.breakpoint-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--border-color);
+}
+
+.breakpoint-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.breakpoint-year {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.breakpoint-updated {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.breakpoint-status {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.breakpoint-status.current {
+  color: #16a34a;
+}
+
+.breakpoint-status.archived {
+  color: #6b7280;
+}
+
+.breakpoint-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+/* Breakpoint Details Bottom Sheet */
+.breakpoint-details {
+  padding: var(--spacing-md);
+}
+
+.breakpoint-details-header {
+  margin-bottom: var(--spacing-lg);
+}
+
+.breakpoint-details-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+  line-height: 1.3;
+}
+
+.breakpoint-details-subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-md);
+  font-weight: 500;
+}
+
+.breakpoint-details-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.breakpoint-details-badge {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.breakpoint-details-section {
+  margin-bottom: var(--spacing-lg);
+}
+
+.breakpoint-details-section-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.breakpoint-details-section-title svg {
+  width: 16px;
+  height: 16px;
+  color: var(--primary-color);
+}
+
+.breakpoint-details-content {
+  color: var(--text-secondary);
+  line-height: 1.6;
+  font-size: 0.875rem;
+}
+
+.breakpoint-details-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--background-color);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.breakpoint-details-table th,
+.breakpoint-details-table td {
+  padding: var(--spacing-sm);
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.breakpoint-details-table th {
+  background: var(--surface-color);
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+}
+
+.breakpoint-details-table td {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.breakpoint-details-table tr:last-child td {
+  border-bottom: none;
+}
+
+.breakpoint-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--spacing-sm);
+}
+
+.breakpoint-details-field {
+  background: var(--background-color);
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  text-align: center;
+  border: 1px solid var(--border-color);
+}
+
+.breakpoint-details-field-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.breakpoint-details-field-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.breakpoint-details-field-value.code {
+  font-family: 'Courier New', monospace;
+  font-size: 0.75rem;
+}
+
+.breakpoint-details-notes {
+  background: var(--background-color);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  border-left: 4px solid var(--primary-color);
+}
+
+.breakpoint-details-notes-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+  font-size: 0.875rem;
+}
+
+.breakpoint-details-notes-content {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.breakpoint-details-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--border-color);
+}
+
+.breakpoint-action-btn {
+  flex: 1;
+  padding: var(--spacing-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--surface-color);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+}
+
+.breakpoint-action-btn:hover {
+  background: var(--background-color);
+  border-color: var(--primary-color);
+}
+
+.breakpoint-action-btn.primary {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+.breakpoint-action-btn.primary:hover {
+  background: var(--primary-color-dark);
+}
+
+.breakpoint-action-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Filter Panel */
+.filter-panel {
+  background: var(--surface-color);
+  border-bottom: 1px solid var(--border-color);
+  padding: var(--spacing-md);
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.filter-panel.active {
+  max-height: 300px;
+  padding: var(--spacing-md);
+}
+
+.filter-section {
+  margin-bottom: var(--spacing-md);
+}
+
+.filter-section:last-child {
+  margin-bottom: 0;
+}
+
+.filter-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs);
+}
+
+.filter-chip {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  background: var(--background-color);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-chip:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.filter-chip.active {
+  background: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .breakpoint-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .breakpoint-method {
+    align-self: flex-start;
+  }
+  
+  .breakpoint-values {
+    grid-template-columns: 1fr;
+  }
+  
+  .breakpoint-details-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .breakpoint-details-actions {
+    flex-direction: column;
+  }
+  
+  .year-selector {
+    justify-content: flex-start;
+  }
+  
+  .year-btn {
+    min-width: 50px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+}
+
+/* Loading Animation */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.breakpoint-card.loading {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* Swipe Actions */
+.breakpoint-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.breakpoint-card.swiping {
+  transform: translateX(-80px);
+  transition: transform 0.3s ease;
+}
+
+.breakpoint-swipe-actions {
+  position: absolute;
+  right: -80px;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  display: flex;
+  background: var(--primary-color);
+  transition: right 0.3s ease;
+}
+
+.breakpoint-card.swiping .breakpoint-swipe-actions {
+  right: 0;
+}
+
+.breakpoint-swipe-action {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.breakpoint-swipe-action:hover {
+  background: var(--primary-color-dark);
+}
+
+.breakpoint-swipe-action svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Special Breakpoint Types */
+.breakpoint-card.quality-control {
+  border-left: 4px solid #8b5cf6;
+}
+
+.breakpoint-card.clinical {
+  border-left: 4px solid #16a34a;
+}
+
+.breakpoint-card.epidemiological {
+  border-left: 4px solid #d97706;
+}
+
+/* Comparison View */
+.breakpoint-comparison {
+  background: var(--background-color);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  margin-bottom: var(--spacing-md);
+}
+
+.comparison-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+  font-size: 0.875rem;
+}
+
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.comparison-table th,
+.comparison-table td {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  text-align: center;
+  border: 1px solid var(--border-color);
+  font-size: 0.75rem;
+}
+
+.comparison-table th {
+  background: var(--surface-color);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.comparison-table td {
+  color: var(--text-secondary);
+  font-family: 'Courier New', monospace;
+}
+
+.comparison-table .year-current {
+  background: #dcfce7;
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.comparison-table .year-previous {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+/* Historical Changes */
+.historical-changes {
+  background: var(--background-color);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.change-item {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.change-item:last-child {
+  border-bottom: none;
+}
+
+.change-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.change-icon.added {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.change-icon.modified {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.change-icon.removed {
+  background: #fce7f3;
+  color: #e11d48;
+}
+
+.change-content {
+  flex: 1;
+}
+
+.change-description {
+  font-size: 0.875rem;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.change-date {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
