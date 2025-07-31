@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>微生物管理 - CLSI平台</title>
+    <link rel="stylesheet" href="/css/components/quick-search.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #2c3e50;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            font-size: 24px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: background 0.3s;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255,255,255,0.2);
+        }
+        
+        .nav-links a.active {
+            background: rgba(255,255,255,0.3);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 30px;
+        }
+        
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .page-title {
+            font-size: 28px;
+            color: #2c3e50;
+        }
+        
+        .quick-search-section {
+            margin-bottom: 30px;
+        }
+        
+        .quick-search-container {
+            margin-bottom: 20px;
+        }
+        
+        .search-stats {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 12px 0;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        
+        .search-result-count {
+            font-weight: 600;
+            color: #3498db;
+        }
+        
+        .search-filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #e3f2fd;
+            color: #1976d2;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .filter-tag .remove {
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 4px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+        
+        .microorganisms-table {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .table-header {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .table-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #2c3e50;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .hierarchy-level {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .level-genus {
+            background: #e74c3c;
+            color: white;
+        }
+        
+        .level-group {
+            background: #f39c12;
+            color: white;
+        }
+        
+        .level-species {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .parent-chain {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 2px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+        }
+        
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .success-message {
+            background: #efe;
+            color: #3c3;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+        }
+        
+        .pagination button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        
+        .pagination button:hover {
+            background: #f8f9fa;
+        }
+        
+        .pagination button.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+        
+        .highlighted {
+            background: #fff3cd !important;
+            animation: highlight-fade 2s ease-out;
+        }
+        
+        @keyframes highlight-fade {
+            0% { background: #ffc107 !important; }
+            100% { background: #fff3cd !important; }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .nav-links {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .search-stats {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            table {
+                font-size: 14px;
+            }
+            
+            th, td {
+                padding: 10px;
+            }
+            
+            .table-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🧬 CLSI平台 - 微生物管理</h1>
+        <div class="nav-links">
+            <a href="/dashboard.html">仪表板</a>
+            <a href="/users.html">用户管理</a>
+            <a href="/microorganisms-enhanced.html" class="active">微生物管理</a>
+            <a href="/drugs-enhanced.html">药物管理</a>
+            <a href="/samples.html">样本管理</a>
+            <a href="/expert-rules.html">专家规则</a>
+            <a href="/reports.html">报告分析</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="page-header">
+            <h2 class="page-title">🦠 微生物管理 - 增强版</h2>
+        </div>
+        
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+        
+        <!-- 快捷搜索区域 -->
+        <div class="quick-search-section">
+            <div class="quick-search-container"></div>
+            <div class="search-stats">
+                <span class="search-result-count" id="searchResultCount">显示全部 0 条记录</span>
+                <div class="search-filters" id="activeFilters"></div>
+            </div>
+        </div>
+        
+        <!-- 统计信息 -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalCount">0</div>
+                <div class="stat-label">总微生物数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="genusCount">0</div>
+                <div class="stat-label">属级分类</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="groupCount">0</div>
+                <div class="stat-label">群级分类</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="speciesCount">0</div>
+                <div class="stat-label">种级分类</div>
+            </div>
+        </div>
+        
+        <!-- 微生物表格 -->
+        <div class="microorganisms-table">
+            <div class="table-header">
+                <div class="table-title">微生物列表</div>
+                <div class="table-actions">
+                    <button class="btn btn-secondary" onclick="exportData()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="7,10 12,15 17,10"></polyline>
+                            <line x1="12" y1="15" x2="12" y2="3"></line>
+                        </svg>
+                        导出
+                    </button>
+                    <button class="btn btn-primary" onclick="refreshData()">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="23,4 23,10 17,10"></polyline>
+                            <polyline points="1,20 1,14 7,14"></polyline>
+                            <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+                        </svg>
+                        刷新
+                    </button>
+                </div>
+            </div>
+            
+            <div id="loadingIndicator" class="loading">
+                正在加载微生物数据...
+            </div>
+            
+            <table id="microorganismsTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>名称</th>
+                        <th>代码</th>
+                        <th>级别</th>
+                        <th>父级分类</th>
+                        <th>描述</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody id="microorganismsTableBody">
+                    <!-- 动态内容 -->
+                </tbody>
+            </table>
+            
+            <div class="pagination" id="pagination" style="display: none;">
+                <button onclick="changePage(-1)">上一页</button>
+                <span id="pageInfo">第 1 页，共 1 页</span>
+                <button onclick="changePage(1)">下一页</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/js/components/quick-search.js"></script>
+    <script>
+        let authToken = localStorage.getItem('authToken');
+        let allMicroorganisms = [];
+        let filteredMicroorganisms = [];
+        let currentPage = 1;
+        const itemsPerPage = 20;
+        let quickSearch = null;
+        let activeFilters = new Set();
+        
+        // 页面加载时初始化
+        window.addEventListener('load', function() {
+            checkAuth();
+            initializeQuickSearch();
+            loadMicroorganisms();
+        });
+        
+        // 检查认证状态
+        function checkAuth() {
+            if (!authToken) {
+                window.location.href = '/login.html';
+                return;
+            }
+        }
+        
+        // 初始化快捷搜索
+        function initializeQuickSearch() {
+            const categories = [
+                { name: '属级', value: 'genus', icon: '🔴', count: 0 },
+                { name: '群级', value: 'group', icon: '🟠', count: 0 },
+                { name: '种级', value: 'species', icon: '🟢', count: 0 }
+            ];
+            
+            quickSearch = new QuickSearch({
+                container: '.quick-search-container',
+                placeholder: '快速搜索微生物名称、代码或分类级别...',
+                searchFields: ['name', 'code', 'hierarchy_level', 'description'],
+                dataSource: allMicroorganisms,
+                categories: categories,
+                onSearch: handleQuickSearch,
+                onSelect: handleQuickSelect,
+                enableHistory: true,
+                enableSuggestions: true,
+                maxSuggestions: 8,
+                minSearchLength: 1
+            });
+        }
+        
+        // 处理快捷搜索
+        function handleQuickSearch(query, results) {
+            if (query.startsWith('category:')) {
+                const level = query.replace('category:', '');
+                filterByLevel(level);
+                return;
+            }
+            
+            if (!query.trim()) {
+                filteredMicroorganisms = [...allMicroorganisms];
+                activeFilters.clear();
+            } else {
+                filteredMicroorganisms = results.map(r => r.item);
+                activeFilters.clear();
+                activeFilters.add(`搜索: ${query}`);
+            }
+            
+            updateActiveFilters();
+            updateSearchStats();
+            currentPage = 1;
+            displayMicroorganisms();
+        }
+        
+        // 处理快捷选择
+        function handleQuickSelect(item, query) {
+            // 高亮选中的微生物
+            highlightMicroorganism(item.id);
+            showSuccess(`已定位到微生物: ${item.name}`);
+        }
+        
+        // 按级别过滤
+        function filterByLevel(level) {
+            filteredMicroorganisms = allMicroorganisms.filter(micro => micro.hierarchy_level === level);
+            activeFilters.clear();
+            activeFilters.add(`级别: ${getLevelDisplayName(level)}`);
+            
+            updateActiveFilters();
+            updateSearchStats();
+            currentPage = 1;
+            displayMicroorganisms();
+        }
+        
+        // 更新活跃过滤器显示
+        function updateActiveFilters() {
+            const filtersContainer = document.getElementById('activeFilters');
+            filtersContainer.innerHTML = Array.from(activeFilters).map(filter => `
+                <span class="filter-tag">
+                    ${filter}
+                    <span class="remove" onclick="removeFilter('${filter}')">&times;</span>
+                </span>
+            `).join('');
+        }
+        
+        // 移除过滤器
+        function removeFilter(filter) {
+            activeFilters.delete(filter);
+            
+            if (activeFilters.size === 0) {
+                filteredMicroorganisms = [...allMicroorganisms];
+                quickSearch.setValue('');
+            }
+            
+            updateActiveFilters();
+            updateSearchStats();
+            displayMicroorganisms();
+        }
+        
+        // 更新搜索统计
+        function updateSearchStats() {
+            const count = filteredMicroorganisms.length;
+            const total = allMicroorganisms.length;
+            const resultText = activeFilters.size > 0 ? 
+                `找到 ${count} 条结果，共 ${total} 条记录` : 
+                `显示全部 ${total} 条记录`;
+            
+            document.getElementById('searchResultCount').textContent = resultText;
+        }
+        
+        // 高亮微生物
+        function highlightMicroorganism(microId) {
+            // 找到微生物在当前页面中的位置
+            const microIndex = filteredMicroorganisms.findIndex(micro => micro.id === microId);
+            if (microIndex === -1) return;
+            
+            // 计算应该在哪一页
+            const targetPage = Math.ceil((microIndex + 1) / itemsPerPage);
+            
+            if (targetPage !== currentPage) {
+                currentPage = targetPage;
+                displayMicroorganisms();
+            }
+            
+            // 高亮对应的行
+            setTimeout(() => {
+                const rows = document.querySelectorAll('#microorganismsTableBody tr');
+                const rowIndex = microIndex % itemsPerPage;
+                if (rows[rowIndex]) {
+                    rows[rowIndex].classList.add('highlighted');
+                    rows[rowIndex].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    
+                    setTimeout(() => {
+                        rows[rowIndex].classList.remove('highlighted');
+                    }, 3000);
+                }
+            }, 100);
+        }
+        
+        // 加载微生物列表
+        async function loadMicroorganisms() {
+            try {
+                const response = await fetch('/api/microorganisms', {
+                    headers: {
+                        'Authorization': 'Bearer ' + authToken
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load microorganisms');
+                }
+                
+                const data = await response.json();
+                allMicroorganisms = data.data || [];
+                filteredMicroorganisms = [...allMicroorganisms];
+                
+                // 更新快捷搜索数据源
+                if (quickSearch) {
+                    quickSearch.updateDataSource(allMicroorganisms);
+                    updateLevelCount();
+                }
+                
+                updateStatistics();
+                updateSearchStats();
+                displayMicroorganisms();
+                
+            } catch (error) {
+                console.error('Error loading microorganisms:', error);
+                showError('加载微生物列表失败: ' + error.message);
+            } finally {
+                document.getElementById('loadingIndicator').style.display = 'none';
+                document.getElementById('microorganismsTable').style.display = 'table';
+                document.getElementById('pagination').style.display = 'flex';
+            }
+        }
+        
+        // 更新级别计数
+        function updateLevelCount() {
+            const levelCounts = {};
+            allMicroorganisms.forEach(micro => {
+                const level = micro.hierarchy_level || 'other';
+                levelCounts[level] = (levelCounts[level] || 0) + 1;
+            });
+            
+            const categories = [
+                { name: '属级', value: 'genus', icon: '🔴', count: levelCounts['genus'] || 0 },
+                { name: '群级', value: 'group', icon: '🟠', count: levelCounts['group'] || 0 },
+                { name: '种级', value: 'species', icon: '🟢', count: levelCounts['species'] || 0 }
+            ];
+            
+            quickSearch.updateCategories(categories);
+        }
+        
+        // 更新统计信息
+        function updateStatistics() {
+            const stats = {
+                total: allMicroorganisms.length,
+                genus: allMicroorganisms.filter(m => m.hierarchy_level === 'genus').length,
+                group: allMicroorganisms.filter(m => m.hierarchy_level === 'group').length,
+                species: allMicroorganisms.filter(m => m.hierarchy_level === 'species').length
+            };
+            
+            document.getElementById('totalCount').textContent = stats.total;
+            document.getElementById('genusCount').textContent = stats.genus;
+            document.getElementById('groupCount').textContent = stats.group;
+            document.getElementById('speciesCount').textContent = stats.species;
+        }
+        
+        // 显示微生物列表
+        function displayMicroorganisms() {
+            const tbody = document.getElementById('microorganismsTableBody');
+            const totalPages = Math.ceil(filteredMicroorganisms.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const currentItems = filteredMicroorganisms.slice(startIndex, endIndex);
+            
+            if (currentItems.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #7f8c8d;">暂无微生物数据</td></tr>';
+                document.getElementById('pageInfo').textContent = '无数据';
+                return;
+            }
+            
+            tbody.innerHTML = currentItems.map(micro => {
+                const parent = micro.parent_id ? 
+                    allMicroorganisms.find(p => p.id === micro.parent_id) : null;
+                
+                return `
+                    <tr data-micro-id="${micro.id}">
+                        <td>
+                            ${micro.name}
+                            ${parent ? `<div class="parent-chain">↳ ${getParentChain(micro)}</div>` : ''}
+                        </td>
+                        <td>${micro.code}</td>
+                        <td><span class="hierarchy-level level-${micro.hierarchy_level}">${getLevelDisplayName(micro.hierarchy_level)}</span></td>
+                        <td>${parent ? parent.name : '-'}</td>
+                        <td>${micro.description || '-'}</td>
+                        <td>${formatDate(micro.created_at)}</td>
+                        <td>
+                            <button class="btn btn-primary" onclick="viewMicroorganism(${micro.id})" title="查看详情">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            // 更新分页信息
+            document.getElementById('pageInfo').textContent = `第 ${currentPage} 页，共 ${totalPages} 页`;
+        }
+        
+        // 获取父级链条
+        function getParentChain(micro) {
+            const chain = [];
+            let current = micro;
+            
+            while (current.parent_id) {
+                const parent = allMicroorganisms.find(p => p.id === current.parent_id);
+                if (parent) {
+                    chain.unshift(parent.name);
+                    current = parent;
+                } else {
+                    break;
+                }
+            }
+            
+            return chain.join(' → ');
+        }
+        
+        // 获取级别显示名称
+        function getLevelDisplayName(level) {
+            const levelNames = {
+                'genus': '属',
+                'group': '群',
+                'species': '种'
+            };
+            return levelNames[level] || level;
+        }
+        
+        // 格式化日期
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('zh-CN');
+        }
+        
+        // 切换页面
+        function changePage(direction) {
+            const totalPages = Math.ceil(filteredMicroorganisms.length / itemsPerPage);
+            const newPage = currentPage + direction;
+            
+            if (newPage >= 1 && newPage <= totalPages) {
+                currentPage = newPage;
+                displayMicroorganisms();
+            }
+        }
+        
+        // 查看微生物详情
+        function viewMicroorganism(microId) {
+            const micro = allMicroorganisms.find(m => m.id === microId);
+            if (micro) {
+                showSuccess(`查看微生物详情: ${micro.name} (${micro.code})`);
+                // 这里可以打开详情模态框或跳转到详情页面
+            }
+        }
+        
+        // 导出数据
+        function exportData() {
+            const csvContent = "data:text/csv;charset=utf-8," + 
+                "名称,代码,级别,父级分类,描述,创建时间\n" +
+                filteredMicroorganisms.map(micro => {
+                    const parent = micro.parent_id ? 
+                        allMicroorganisms.find(p => p.id === micro.parent_id) : null;
+                    return `"${micro.name}","${micro.code}","${getLevelDisplayName(micro.hierarchy_level)}","${parent ? parent.name : ''}","${micro.description || ''}","${formatDate(micro.created_at)}"`;
+                }).join("\n");
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `microorganisms_export_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showSuccess('数据导出成功！');
+        }
+        
+        // 刷新数据
+        function refreshData() {
+            document.getElementById('loadingIndicator').style.display = 'block';
+            document.getElementById('microorganismsTable').style.display = 'none';
+            
+            loadMicroorganisms();
+            
+            showSuccess('数据已刷新！');
+        }
+        
+        // 显示错误消息
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        // 显示成功消息
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
